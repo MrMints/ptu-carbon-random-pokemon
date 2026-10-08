@@ -1,0 +1,21 @@
+.ptu-carbon-generator .window-content { padding: 18px; }
+.ptu-carbon-generator .carbon-content { display: flex; flex-direction: column; gap: 12px; }
+.ptu-carbon-generator .carbon-heading { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #ad4248; padding-bottom: 12px; }
+.ptu-carbon-generator .carbon-heading > i { font-size: 32px; color: #ad4248; }
+.ptu-carbon-generator h2, .ptu-carbon-generator h3 { margin: 0 0 4px; }
+.ptu-carbon-generator p { margin: 4px 0; }
+.ptu-carbon-generator fieldset { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--color-border-light-primary, #777); border-radius: 6px; padding: 12px; }
+.ptu-carbon-generator label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.ptu-carbon-generator .carbon-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ptu-carbon-generator .carbon-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ptu-carbon-generator .carbon-checkbox { flex-direction: row; align-items: center; }
+.ptu-carbon-generator input, .ptu-carbon-generator select { width: 100%; }
+.ptu-carbon-generator input[type=checkbox] { width: auto; }
+.ptu-carbon-generator .carbon-hint, .ptu-carbon-generator .carbon-credit { font-size: 12px; opacity: 0.85; line-height: 1.5; }
+.ptu-carbon-generator .carbon-actions { display: flex; gap: 10px; }
+.ptu-carbon-generator .carbon-actions button { flex: 1; }
+.ptu-carbon-generator .carbon-status { padding: 10px; border-left: 3px solid #ad4248; background: #ad424812; }
+.ptu-carbon-generator .carbon-preview { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px; border: 1px solid var(--color-border-light-primary, #777); border-radius: 6px; }
+.ptu-carbon-generator .carbon-preview img { width: 72px; height: 72px; object-fit: contain; border: 0; }
+.ptu-carbon-generator .carbon-stats { font-variant-numeric: tabular-nums; font-size: 12px; }
+.ptu-carbon-generator .carbon-credit { border-top: 1px solid var(--color-border-light-primary, #777); padding-top: 10px; }
