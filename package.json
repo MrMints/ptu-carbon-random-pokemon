@@ -3,5 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node --test --test-isolation=none", "check": "node --check scripts/main.js && node --check scripts/generator.js && node --check scripts/rules.js" }
+  "scripts": { "test": "node --test", "check": "node --check scripts/main.js && node --check scripts/generator.js && node --check scripts/rules.js" }
 }
