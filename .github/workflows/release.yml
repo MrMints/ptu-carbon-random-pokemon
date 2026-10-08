@@ -1,0 +1,46 @@
+name: Test and release
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm run check
+      - name: Check version and package
+        shell: bash
+        run: |
+          node -e 'const fs = require("fs"); const m = JSON.parse(fs.readFileSync("module.json")); if (process.env.GITHUB_REF_TYPE === "tag" && process.env.GITHUB_REF_NAME !== `v${m.version}`) throw Error("Tag and manifest version mismatch");'
+          mkdir -p dist
+          zip -r dist/ptu-carbon-random-pokemon.zip module.json scripts styles templates README.md LICENSE CHANGELOG.md docs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ptu-carbon-random-pokemon
+          path: dist/ptu-carbon-random-pokemon.zip
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ptu-carbon-random-pokemon
+          path: dist
+      - name: Publish development release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --title "$RELEASE_TAG" --prerelease --notes "PTU Carbon Random Pokémon development release. Targets Carbon 4.4.3 on Foundry 13. Includes GM-only random generation, previews, PTU stat and ability rules, and creator credit. Live-world QA is pending; see README and docs/TESTING.md."
