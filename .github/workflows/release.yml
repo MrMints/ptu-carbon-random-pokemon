@@ -43,4 +43,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --title "$RELEASE_TAG" --prerelease --notes "PTU Carbon Random Pokémon development release. Targets Carbon 4.4.3 on Foundry 13. Includes GM-only random generation, previews, PTU stat and ability rules, and creator credit. Live-world QA is pending; see README and docs/TESTING.md."
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --title "$RELEASE_TAG" --prerelease --notes "PTU Carbon Random Pokémon development release. Targets Carbon 4.4.3 on Foundry 13. Includes GM-only random generation, previews, PTU stat and ability rules, and creator credit. Live-world QA is pending; see README and docs/TESTING.md."
+          fi
