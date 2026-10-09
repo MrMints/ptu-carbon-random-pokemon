@@ -101,7 +101,7 @@ export async function prepareBatch(input = {}) {
     actor.folder = options.folder || null;
     actor.items = items;
     actor.flags ??= {};
-    actor.flags[MODULE_ID] = { generated: true, version: "0.1.0", source: source.uuid, level, statStyle: options.statStyle };
+    actor.flags[MODULE_ID] = { generated: true, version: "0.2.0", source: source.uuid, level, statStyle: options.statStyle };
     // Missing art should use the species icon rather than produce a broken texture.
     actor.img ||= source.img || "icons/svg/mystery-man.svg";
     actor.prototypeToken.texture ??= {};
@@ -120,7 +120,8 @@ export async function prepareBatch(input = {}) {
 
 export async function createBatch(batch) {
   checkSystem();
-  if (!Array.isArray(batch) || !batch.length || batch.length > 50) throw new Error("Preview a batch of 1–50 Pokémon first.");
+  if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1–350 actors first.");
   // A single creation call embeds all items at actor creation, avoiding half-built actors.
-  return CONFIG.Actor.documentClass.createDocuments(batch.map(entry => foundry.utils.deepClone(entry.data)));
+  const data = batch.map(entry => foundry.utils.deepClone(entry.data));
+  return CONFIG.Actor.documentClass.createDocuments(data, { keepId: data.some(actor => actor._id) });
 }

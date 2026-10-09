@@ -1,4 +1,5 @@
-import { MODULE_ID, checkSystem, prepareBatch, createBatch } from "./generator.js";
+import { MODULE_ID, checkSystem, prepareEncounter, createEncounter } from "./encounters.js";
+import { TRAINER_ART } from "./trainer-art.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -7,7 +8,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
     id: MODULE_ID,
     classes: ["ptu-carbon-generator"],
     tag: "form",
-    window: { title: "PTU Carbon Random Pokémon", resizable: true },
+    window: { title: "PTU Carbon Random Encounters", resizable: true },
     position: { width: 740, height: 760 },
     form: { closeOnSubmit: false, handler: RandomPokemonApp.preview },
     actions: { create: RandomPokemonApp.create }
@@ -17,8 +18,8 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   batch = [];
   busy = false;
-  values = { amount: 1, minLevel: 5, maxLevel: 10, shinyChance: 1, includeForms: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest" };
-  message = "Choose your filters, then preview a random Pokémon.";
+  values = { mode: "pokemon", amount: 1, trainerMinLevel: 1, trainerMaxLevel: 5, partySize: 3, minLevel: 5, maxLevel: 10, shinyChance: 1, includeForms: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest", placeTokens: false };
+  message = "Choose Pokémon, trainers, or trainers with their Pokémon, then preview.";
   listenerController;
 
   async _prepareContext() {
@@ -28,6 +29,9 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const choices = (values, selected) => [...new Set(values)].sort().map(value => ({ value, selected: value === selected }));
     return {
       values: this.values, busy: this.busy, message: this.message,
+      showPokemon: this.values.mode !== "trainers", showTrainers: this.values.mode !== "pokemon", showParty: this.values.mode === "party",
+      modes: [{ value: "pokemon", label: "Pokémon only" }, { value: "trainers", label: "Trainers only" }, { value: "party", label: "Trainers with their Pokémon" }].map(mode => ({ ...mode, selected: mode.value === this.values.mode })),
+      trainerArt: TRAINER_ART.map(art => ({ ...art, selected: art.id === this.values.trainerArt })),
       hasPreview: this.batch.length > 0, batch: this.batch.map(entry => entry.summary),
       packs: game.packs.filter(p => p.documentName === "Item").map(p => ({ id: p.collection, label: p.metadata.label, selected: p.collection === this.values.pack })),
       folders: game.folders.filter(f => f.type === "Actor").map(f => ({ id: f.id, name: f.name, selected: f.id === this.values.folder })),
@@ -45,7 +49,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.listenerController = new AbortController();
     this.element.addEventListener("change", async event => {
       if (!event.target.name || this.busy) return;
-      this.values = RandomPokemonApp.readForm(this.element);
+      this.values = { ...this.values, ...RandomPokemonApp.readForm(this.element) };
       this.batch = [];
       this.message = "Options changed. Preview again before creating actors.";
       await this.render();
@@ -54,20 +58,21 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static readForm(form) {
     const values = Object.fromEntries(new FormData(form));
-    values.includeForms = form.elements.includeForms.checked;
+    values.includeForms = form.elements.includeForms?.checked ?? false;
+    values.placeTokens = form.elements.placeTokens?.checked ?? false;
     return values;
   }
 
   static async preview(event, form, formData) {
     if (this.busy) return;
-    this.values = RandomPokemonApp.readForm(form);
+    this.values = { ...this.values, ...RandomPokemonApp.readForm(form) };
     this.busy = true;
     this.batch = [];
     this.message = "Generating preview…";
     await this.render();
     try {
-      this.batch = await prepareBatch(this.values);
-      this.message = `${this.batch.length} Pokémon ready. Create actors to save this exact preview.`;
+      this.batch = await prepareEncounter(this.values);
+      this.message = `${this.batch.length} actors ready. Create actors to save this exact preview.`;
     } catch (error) {
       console.error(`${MODULE_ID} | Preview failed`, error);
       this.message = error.message;
@@ -84,9 +89,9 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.message = "Creating actors…";
     await this.render();
     try {
-      const actors = await createBatch(this.batch);
+      const actors = await createEncounter(this.batch, { placeTokens: this.values.placeTokens });
       this.batch = [];
-      this.message = `Created ${actors.length} Pokémon in the Actors directory.`;
+      this.message = `Created ${actors.length} actors${this.values.placeTokens ? " and scene tokens" : " with portrait and token art"}.`;
       ui.notifications.info(this.message);
       if (actors.length === 1) actors[0].sheet.render(true);
     } catch (error) {
@@ -112,14 +117,14 @@ function openGenerator() {
 
 Hooks.once("init", () => {
   game.settings.registerMenu(MODULE_ID, "generator", {
-    name: "Random Pokémon Generator", label: "Open Generator", hint: "Generate PTU Pokémon with a preview before saving.",
+    name: "Random Encounter Generator", label: "Open Generator", hint: "Generate trainers, Pokémon, or linked parties with a preview before saving.",
     icon: "fas fa-dice", type: RandomPokemonApp, restricted: true
   });
 });
 
 Hooks.once("ready", () => {
   const module = game.modules.get(MODULE_ID);
-  module.api = Object.freeze({ open: openGenerator, preview: prepareBatch, create: createBatch });
+  module.api = Object.freeze({ open: openGenerator, preview: prepareEncounter, create: createEncounter });
   if (game.user.isGM) {
     try { checkSystem(); } catch (error) { ui.notifications.warn(error.message); }
   }
@@ -133,7 +138,7 @@ function addDirectoryButton(app, html) {
   const button = document.createElement("button");
   button.type = "button";
   button.dataset.module = MODULE_ID;
-  button.innerHTML = '<i class="fas fa-dice" aria-hidden="true"></i> Random Pokémon';
+  button.innerHTML = '<i class="fas fa-dice" aria-hidden="true"></i> Random Encounter';
   button.addEventListener("click", openGenerator);
   footer.append(button);
 }
