@@ -22,3 +22,16 @@ Automated tests use contract doubles and pure rule calculations. They do not sub
 16. Create an actor, close/reload the world, and check the sheet again. Drag its token onto the canvas and confirm art, dimensions, health bar, and normal Carbon behavior.
 
 Record Foundry/Carbon versions, species, options, screenshots, and console errors with any bug report. Do not publish a stable release until these checks have been completed.
+
+## Trainer and party checks for 0.2.0
+
+1. Switch among Pokémon only, Trainers only, and Trainers with their Pokémon. Confirm relevant controls appear and previously selected ranges survive switching. Every change invalidates the preview.
+2. Generate trainers at exact levels 1, 5, 25 and 50, then in a range. Check the saved Carbon character sheet, feature/edge prerequisites, skills, spent stat points, full HP and AP. Test a world advancement variant with a lower level cap; an unsupported level must fail rather than silently change the requested level.
+3. Check each generic artwork option and random artwork. Portraits and prototype token textures must resolve from installed assets after reloading, without an external artwork request. Each source must link to the matching generic ORAS trainer class.
+4. Create two trainers with three Pokémon each, then one trainer with six. Confirm the correct trainer appears for every Pokémon in Carbon's party sheet; no Pokémon may switch owners after world reload. Pokémon and trainer levels must follow their independent selections.
+5. Drag each trainer and Pokémon onto a scene. Check the matching token art, actor linkage, health and token controls. Enable automatic scene placement and confirm actors and actual Token documents are created. With no open scene, placement must fail before creating any actors.
+6. Test trainer feature/edge references and ChoiceSet selections. Missing references, unknown/unmet prerequisites or unresolved choices must stop preview with a reroll message.
+
+## Forge-hosted test
+
+Use a Forge game configured for Foundry 13 and Carbon 4.4.3. Install this custom module through Bazaar → Install From Manifest using the README URL, then enable and reload. Confirm version 0.2.0, each trainer portrait and token texture, the saved party ownership and party folders after reload, and optional scene token placement. Check the portrait/token URL returned by the configured Forge file picker: both must refer to the same hosted image. No image upload, local filesystem access or Forge API key should be required. Please record console errors and the exact Foundry/system/module versions if installation or generation fails.
