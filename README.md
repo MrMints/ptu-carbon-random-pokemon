@@ -1,6 +1,6 @@
-# PTU Carbon Random Pokémon
+# PTU Carbon Random Encounters
 
-A Foundry VTT module by **MrMints** for generating random Pokémon for **PTU 1.05** in **Pokémon Carbon 4.4.3**, on **Foundry VTT 13**.
+A Foundry VTT module by **MrMints** for generating random trainers, Pokémon, and linked parties for **PTU 1.05** in **Pokémon Carbon 4.4.3**, on **Foundry VTT 13**.
 
 **Thank you to Trog / [animenerdfreddurst](https://github.com/animenerdfreddurst) for making [Pokémon Carbon](https://github.com/animenerdfreddurst/pokemon_carbon) a great Foundry VTT system.** This module uses Carbon's public generator API and installed compendiums. Carbon provides the system, document models, species, moves, abilities, capabilities, sprites, and sheets that make this possible. Credit also belongs to npaisley, highmongrel, and the [Pokémon Tabletop Reunited contributors](https://github.com/pokemon-tabletop-reunited/ptr1e) behind its upstream foundation, and to the PTU authors for the tabletop game.
 
@@ -13,18 +13,34 @@ A Foundry VTT module by **MrMints** for generating random Pokémon for **PTU 1.0
    https://raw.githubusercontent.com/MrMints/ptu-carbon-random-pokemon/main/module.json
    ```
 
-3. Enable **PTU Carbon Random Pokémon** in your world's **Manage Modules**.
-4. As GM, click **Random Pokémon** in the Actors directory, or open it from **Configure Settings → Module Settings → Random Pokémon Generator**.
+3. Enable **PTU Carbon Random Encounters** in your world's **Manage Modules**.
+4. As GM, click **Random Encounter** in the Actors directory, or open it from **Configure Settings → Module Settings → Random Encounter Generator**.
 
 For manual installation, unzip `ptu-carbon-random-pokemon.zip` into `Data/modules/ptu-carbon-random-pokemon/`. `module.json` must be directly inside that folder. Restart Foundry, then enable the module.
+
+## Install on The Forge
+
+This is a custom module for a Forge-hosted **Foundry 13** world running **Pokémon Carbon 4.4.3**. Open [The Forge Bazaar](https://forge-vtt.com/bazaar), choose **Install From Manifest**, and paste the manifest URL above. If offered, disable **Install from Bazaar if available** to install this repository's custom release. Enable **PTU Carbon Random Encounters** inside the world and reload it. The same module ID preserves existing installation settings.
+
+The release ZIP includes all trainer artwork. Runtime code uses Foundry document APIs; it needs no shell, local filesystem access, image upload permission, external artwork download, or Forge API key. The configured Foundry file picker resolves artwork through Forge's own Bazaar/Assets Library handling, and its returned URLs are used for both portrait and token. Do not upload the image folder separately or move the module's installed assets.
+
+Forge installation follows the [official custom-module documentation](https://forums.forge-vtt.com/t/what-is-the-bazaar/4877). Forge compatibility is covered by hosted-asset contract checks; a live hosted-world test is left to the user.
 
 ## Generate
 
 Choose a species compendium, optional name or Pokédex number, type, habitat, level range, amount, nature, shiny chance, stat style, move style, and destination Actor folder. Names or numbers separated by commas create a combined pool. Blank search means any matching species. Compendium forms are opt-in.
 
-Click **Preview Pokémon**. Review each Pokémon's level, nature, gender, shiny status, stats, HP, abilities, and moves. Reroll as often as you like. **Create actors** saves the exact preview and embeds its species and items. A single generated actor opens its Carbon sheet. Changing an option clears the preview to prevent saving outdated results. This is GM-only, supports 1–50 actors per batch, and does not place tokens or modify compendium entries.
+Click **Preview encounter**. Review each Pokémon's level, nature, gender, shiny status, stats, HP, abilities, and moves. Reroll as often as you like. **Create actors** saves the exact preview and embeds its species and items. A single generated actor opens its Carbon sheet. Changing an option clears the preview to prevent saving outdated results. This is GM-only. Generate 1–50 Pokémon or trainers at a time; a trainer party can add up to six Pokémon per trainer. Actors have portrait and token textures. Enable **Also place tokens on the open scene** to create actual scene tokens. Compendium entries are not modified.
 
 The level is selected uniformly among levels in the requested range that have eligible species, then the species is selected uniformly from the eligible entries at that level. Entries from multiple forms are separate choices when forms are included. Listed evolution minimum levels determine eligibility; Pokémon can remain unevolved at higher levels. Pokémon are created as their selected species; the module does not apply an extra automatic evolution.
+
+## Trainers and parties
+
+Choose **Pokémon only**, **Trainers only**, or **Trainers with their Pokémon**. Trainer levels have their own minimum/maximum controls (1–50). Set both to the same value for an exact level. Party mode adds 1–6 Pokémon per trainer, using the separate Pokémon level range and species filters. Carbon ownership flags link each Pokémon to its trainer.
+
+Carbon's installed NPC builder selects names, classes, features, edges, skills and item choices. The final actor preparation supplies the world's stat-point budget, maximum health and AP. Lower-cap advancement variants reject unsupported trainer levels. These are generated NPC builds. Duplicate source selections are removed and classes are limited to four. Unknown or unmet prerequisites, missing referenced items, and unresolved choices stop generation with a reroll message. Repeated ranks of the same feature are not automatically purchased.
+
+Select a generic game artwork option or random artwork. Bundled unmodified ORAS Ace Trainer and Lass artwork supplies portraits and matching token textures; there are no named story characters in the pool. Tokens use the same complete character artwork, with no AI alteration. Artwork source links appear in the preview and actor flags. See [artwork attribution](assets/trainers/ATTRIBUTION.md).
 
 ## Rules coverage
 
@@ -46,9 +62,9 @@ The module handles **natural Pokémon generation** under the core PTU 1.05 rules
 
 ## Validation status
 
-Targeted against Pokémon Carbon **4.4.3**, upstream tree **172313d320bba4cca34c299913c3a3fe4c0abc26**. The release includes automated rules and integration-contract tests. Tests cover every nature pair at every level with every stat style (18,000 allocations), randomized base-stat spreads, ability thresholds, move limits, validation, reference failures, preview isolation, shiny endpoints, and exact actor creation data.
+Targeted against Pokémon Carbon **4.4.3**, upstream tree **172313d320bba4cca34c299913c3a3fe4c0abc26**. The release includes automated rules and integration-contract tests. Tests cover every nature pair at every level with every stat style (18,000 allocations), randomized base-stat spreads, ability thresholds, move limits, validation, reference failures, preview isolation, shiny endpoints, exact actor creation data, all three encounter modes, trainer level endpoints, party ownership, PNG assets, Forge asset URL resolution, prerequisites and scene token placement. The actual Carbon NPC builder was also exercised in an isolated development harness at levels 1, 5, 25 and 50 using controlled compendium documents.
 
-**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. This first release is **0.1.0**.
+**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. Version **0.2.0** adds trainer and party generation.
 
 ## Macro API
 
@@ -77,6 +93,8 @@ console.table(batch.map(entry => entry.summary));
 const actors = await api.create(batch);
 ```
 
+For a trainer party, pass `mode: "party"`, `amount: 2`, `partySize: 3`, `trainerMinLevel: 5`, `trainerMaxLevel: 5` and Pokémon level options to `api.preview`. Use `api.create(batch, { placeTokens: true })` to place tokens on an open scene.
+
 ## Development and releases
 
 No runtime dependencies or build step. Use Node.js 22.15+:
@@ -86,10 +104,10 @@ npm test
 npm run check
 ```
 
-Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.1.0` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
+Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.2.0` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
 
 Rule references: PTU 1.05 Core, **Managing Pokémon**, pp. 198–200 ([base-stat excerpt](https://kddnewton.com/pokerpg-builder/PokeRPG-Base-Stat-Info.pdf)); Carbon's [generator API](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/scripts/game-ptu.js), [native generator](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/generator.js), and [actor preparation](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/document.js).
 
 ## License and attribution
 
-Original module code is licensed under MIT; see [LICENSE](LICENSE). No Carbon source code, compendium data, PTU books, or Pokémon artwork is bundled. Those projects and assets retain their respective ownership and terms. Pokémon belongs to Nintendo, Game Freak, and The Pokémon Company. This independent fan project is not affiliated with those companies or an official Pokémon Carbon release.
+Original module code is licensed under MIT; see [LICENSE](LICENSE). No Carbon source code, compendium data or PTU books are bundled. The three unmodified generic trainer PNGs are separately credited in assets/trainers/ATTRIBUTION.md and are not covered by the code license. Those projects and assets retain their respective ownership and terms. Pokémon belongs to Nintendo, Game Freak, and The Pokémon Company. This independent fan project is not affiliated with those companies or an official Pokémon Carbon release.
