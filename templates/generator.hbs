@@ -4,6 +4,26 @@
     <div><h2>Roll your next encounter</h2><p>PTU 1.05 · Pokémon Carbon</p></div>
   </header>
   <fieldset {{#if busy}}disabled{{/if}}>
+    <legend>Encounter</legend>
+    <label>Generate<select name="mode">{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label>Amount (Pokémon or trainers)<input type="number" name="amount" value="{{values.amount}}" min="1" max="50" step="1" required></label>
+    <label>Actor folder<select name="folder"><option value="">Actors directory root</option>{{#each folders}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    <label class="carbon-checkbox"><input type="checkbox" name="placeTokens" {{#if values.placeTokens}}checked{{/if}}> Also place tokens on the open scene</label>
+  </fieldset>
+  {{#if showTrainers}}
+  <fieldset {{#if busy}}disabled{{/if}}>
+    <legend>Trainers</legend>
+    <div class="carbon-grid">
+      <label>Minimum trainer level<input type="number" name="trainerMinLevel" value="{{values.trainerMinLevel}}" min="1" max="50" step="1" required></label>
+      <label>Maximum trainer level<input type="number" name="trainerMaxLevel" value="{{values.trainerMaxLevel}}" min="1" max="50" step="1" required></label>
+    </div>
+    <label>Generic game portrait and token<select name="trainerArt"><option value="">Random generic trainer</option>{{#each trainerArt}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    {{#if showParty}}<label>Pokémon per trainer<input type="number" name="partySize" value="{{values.partySize}}" min="1" max="6" step="1" required></label>{{/if}}
+    <p class="carbon-hint">Carbon's NPC builder chooses classes, features, edges and skills. Portraits and matching token textures use generic game trainers. Pokémon levels are selected separately below.</p>
+  </fieldset>
+  {{/if}}
+  {{#if showPokemon}}
+  <fieldset {{#if busy}}disabled{{/if}}>
     <legend>Pokémon pool</legend>
     <label>Species compendium
       <select name="pack">{{#each packs}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
@@ -21,7 +41,6 @@
   <fieldset {{#if busy}}disabled{{/if}}>
     <legend>Generation</legend>
     <div class="carbon-grid carbon-three">
-      <label>Amount<input type="number" name="amount" value="{{values.amount}}" min="1" max="50" step="1" required></label>
       <label>Minimum level<input type="number" name="minLevel" value="{{values.minLevel}}" min="1" max="100" step="1" required></label>
       <label>Maximum level<input type="number" name="maxLevel" value="{{values.maxLevel}}" min="1" max="100" step="1" required></label>
     </div>
@@ -31,11 +50,11 @@
       <label>Stat distribution<select name="statStyle">{{#each statStyles}}<option {{#if selected}}selected{{/if}} value="{{value}}">{{value}}</option>{{/each}}</select></label>
       <label>Natural moves<select name="moveStyle">{{#each moveStyles}}<option {{#if selected}}selected{{/if}} value="{{value}}">{{value}}</option>{{/each}}</select></label>
     </div>
-    <label>Actor folder<select name="folder"><option value="">Actors directory root</option>{{#each folders}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
     <p class="carbon-hint">Allocates every stat point while preserving Base Stat Relation. Abilities unlock at levels 1, 20 and 40. Up to six natural moves.</p>
   </fieldset>
+  {{/if}}
   <div class="carbon-actions">
-    <button type="submit" {{#if busy}}disabled{{/if}}><i class="fas fa-dice"></i> {{#if hasPreview}}Reroll preview{{else}}Preview Pokémon{{/if}}</button>
+    <button type="submit" {{#if busy}}disabled{{/if}}><i class="fas fa-dice"></i> {{#if hasPreview}}Reroll preview{{else}}Preview encounter{{/if}}</button>
     <button type="button" data-action="create" {{#unless hasPreview}}disabled{{/unless}} {{#if busy}}disabled{{/if}}><i class="fas fa-user-plus"></i> Create actors</button>
   </div>
   <p class="carbon-status" role="status" aria-live="polite">{{message}}</p>
@@ -45,8 +64,16 @@
     <div><h3>{{name}} {{#if shiny}}✦ Shiny{{/if}}</h3>
       <p>Level {{level}} · {{nature}} · {{gender}} {{#if form}}· {{form}}{{/if}} · {{hp}} HP</p>
       <p class="carbon-stats">{{stats}}</p>
+      {{#if trainer}}
+      <p><strong>Features:</strong> {{features}}</p>
+      <p><strong>Edges:</strong> {{edges}}</p>
+      <p><a href="{{artSource}}" target="_blank" rel="noopener noreferrer">Portrait and token artwork source</a></p>
+      {{#if warnings}}<p role="alert"><strong>Carbon prerequisite warnings:</strong> {{warnings}}</p>{{/if}}
+      {{else}}
+      {{#if owner}}<p><strong>Trainer:</strong> {{owner}}</p>{{/if}}
       <p><strong>Abilities:</strong> {{abilities}}</p>
       <p><strong>Moves:</strong> {{moves}}</p>
+      {{/if}}
     </div>
   </article>
   {{/each}}
