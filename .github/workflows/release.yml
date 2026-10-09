@@ -22,7 +22,7 @@ jobs:
         run: |
           node -e 'const fs = require("fs"); const m = JSON.parse(fs.readFileSync("module.json")); if (process.env.GITHUB_REF_TYPE === "tag" && process.env.GITHUB_REF_NAME !== `v${m.version}`) throw Error("Tag and manifest version mismatch");'
           mkdir -p dist
-          zip -r dist/ptu-carbon-random-pokemon.zip module.json scripts styles templates README.md LICENSE CHANGELOG.md docs
+          zip -r dist/ptu-carbon-random-pokemon.zip module.json scripts styles templates assets README.md LICENSE CHANGELOG.md docs
       - uses: actions/upload-artifact@v4
         with:
           name: ptu-carbon-random-pokemon
@@ -47,5 +47,5 @@ jobs:
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --clobber
           else
-            gh release create "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --title "$RELEASE_TAG" --prerelease --notes "PTU Carbon Random Pokémon development release. Targets Carbon 4.4.3 on Foundry 13. Includes GM-only random generation, previews, PTU stat and ability rules, and creator credit. Live-world QA is pending; see README and docs/TESTING.md."
+            gh release create "$RELEASE_TAG" dist/ptu-carbon-random-pokemon.zip --title "$RELEASE_TAG" --prerelease --notes "PTU Carbon Random Encounters development release. Targets Carbon 4.4.3 on Foundry 13, including Forge custom installation. Includes Pokémon-only, trainer-only and linked-party modes, selectable trainer levels, generic game portraits, matching token textures, optional scene tokens and creator credit. Live hosted-world testing is performed by the user; see README and docs/TESTING.md."
           fi
