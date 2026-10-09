@@ -19,7 +19,7 @@
     </div>
     <label>Generic game portrait and token<select name="trainerArt"><option value="">Random generic trainer</option>{{#each trainerArt}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     {{#if showParty}}<label>Pokémon per trainer<input type="number" name="partySize" value="{{values.partySize}}" min="1" max="6" step="1" required></label>{{/if}}
-    <p class="carbon-hint">Carbon's NPC builder chooses classes, features, edges and skills. Portraits and matching token textures use generic game trainers. Pokémon levels are selected separately below.</p>
+    <p class="carbon-hint">Carbon's NPC builder chooses classes, features, edges and skills. Portraits and matching token textures use generic game trainers. {{#if showParty}}Pokémon levels are selected separately below.{{/if}}</p>
   </fieldset>
   {{/if}}
   {{#if showPokemon}}
@@ -40,7 +40,7 @@
   </fieldset>
   <fieldset {{#if busy}}disabled{{/if}}>
     <legend>Generation</legend>
-    <div class="carbon-grid carbon-three">
+    <div class="carbon-grid">
       <label>Minimum level<input type="number" name="minLevel" value="{{values.minLevel}}" min="1" max="100" step="1" required></label>
       <label>Maximum level<input type="number" name="maxLevel" value="{{values.maxLevel}}" min="1" max="100" step="1" required></label>
     </div>
@@ -62,7 +62,7 @@
   <article class="carbon-preview">
     <img src="{{img}}" alt="{{name}}">
     <div><h3>{{name}} {{#if shiny}}✦ Shiny{{/if}}</h3>
-      <p>Level {{level}} · {{nature}} · {{gender}} {{#if form}}· {{form}}{{/if}} · {{hp}} HP</p>
+      <p>Level {{level}} {{#unless trainer}}· {{nature}}{{/unless}} · {{gender}} {{#if form}}· {{form}}{{/if}} · {{hp}} HP</p>
       <p class="carbon-stats">{{stats}}</p>
       {{#if trainer}}
       <p><strong>Features:</strong> {{features}}</p>
