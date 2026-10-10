@@ -61,8 +61,17 @@ async function checkReferences(generator, referencePacks) {
         const pack = game.packs.get(`ptu.${{ move: "moves", ability: "abilities", capability: "capabilities" }[type]}`);
         referencePacks.set(type, pack ? await pack.getDocuments() : []);
       }
-      const matches = referencePacks.get(type).filter(item => item.type === type && data.slug &&
+      const candidates = referencePacks.get(type).filter(item => item.type === type);
+      let matches = candidates.filter(item => data.slug &&
         (item.slug === data.slug || item.system?.slug === data.slug));
+      if (!matches.length && data.slug) {
+        // Legacy dex entries use names such as bubblebeam, while move documents
+        // may use Bubble Beam / bubble-beam. Ignore separators only, never guess
+        // spelling, and require a unique document within this typed compendium.
+        const compact = value => typeof value === "string" ? value.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "") : "";
+        const key = compact(data.slug);
+        if (key) matches = candidates.filter(item => [item.slug, item.system?.slug, item.name].some(value => compact(value) === key));
+      }
       document = matches.length === 1 ? matches[0] : null;
       if (document?.uuid) data.uuid = document.uuid;
     }
@@ -124,7 +133,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
     actor.folder = options.folder || null;
     actor.items = items;
     actor.flags ??= {};
-    actor.flags[MODULE_ID] = { generated: true, version: "0.2.5", source: source.uuid, level, statStyle: options.statStyle };
+    actor.flags[MODULE_ID] = { generated: true, version: "0.2.6", source: source.uuid, level, statStyle: options.statStyle };
     // Missing art should use the species icon rather than produce a broken texture.
     actor.img ||= source.img || "icons/svg/mystery-man.svg";
     actor.prototypeToken.texture ??= {};
