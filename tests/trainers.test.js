@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { setup, created } from "./carbon-fixture.js";
+import { setup, created, resolved } from "./carbon-fixture.js";
 import { prepareTrainer, validateTrainerOptions, TRAINER_NAMES } from "../scripts/trainers.js";
 import { prepareEncounter, createEncounter } from "../scripts/encounters.js";
 import { TRAINER_ART, resolveTrainerPortrait } from "../scripts/trainer-art.js";
@@ -11,9 +11,17 @@ class Builder {
   constructor() {
     this.trainer = { classes: { selected: [] }, features: { computed: [], selected: [] }, edges: { computed: [], selected: [] }, skills: { command: { value: 3 } }, subSelectables: {} };
     this.manuallyUpdatedFields = new Set(); this.alliance = "opposition";
+    this.multiselects = { classes: { options: [{ uuid: "trainer-class", label: "Generic Class" }] }, features: { options: [] }, edges: { options: [] } };
+    this.expectedFeatureNumber = 2; this.expectedEdgeNumber = 2; this.expectedClassNumber = 1;
+    this.skillLimit = 3; this.maxSkillPoints = 3;
+    this.trainer.skills.command.max = 6;
+    this.trainer.skills.command.min = 1;
   }
   async preload() {}
-  async refresh() {}
+  async refresh() {
+    this.trainer.features.computed = this.trainer.classes.selected.map(choice => ({ ...choice, ...resolved.get(choice.uuid).toObject() }));
+  }
+  async randomizeSubOptions() {}
   async randomizeAll() {
     assert.ok(this.manuallyUpdatedFields.has("trainer.level"));
     assert.ok(this.manuallyUpdatedFields.has("trainer.sex"));
@@ -24,6 +32,7 @@ class Builder {
 
 function environment() {
   setup();
+  resolved.set("trainer-class", { type: "feat", toObject: () => ({ name: "Generic Class", type: "feat", system: { keywords: ["Class"], rules: [], prerequisites: [] } }) });
   let id = 0;
   foundry.utils.randomID = () => `random${String(++id).padStart(10, "0")}`;
   globalThis.Folder = { async create(data) { const folder = { ...data, id: foundry.utils.randomID() }; game.folders.set(folder.id, folder); return folder; } };
@@ -172,7 +181,7 @@ test("unknown and unmet native prerequisites stop trainer creation", async () =>
   class InvalidBuilder extends Builder {
     async refresh() { this.warnings = { unknown: ["Unknown prerequisite"], unmet: [] }; }
   }
-  await assert.rejects(prepareTrainer({}, { Builder: InvalidBuilder }), /could not validate/);
+  await assert.rejects(prepareTrainer({}, { Builder: InvalidBuilder }), /could not initialize/);
   assert.equal(created.length, 0);
 });
 
