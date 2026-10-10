@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+
+Fixes trainer generation aborting on unsupported or unmet feature prerequisites. Replaces Carbon's hypothetical-skill randomizeAll selection with incremental trials against real ranks and Carbon's native prerequisite/dependency resolver. Rejects and rolls back incompatible candidates, including the reported Mystic Senses and I'm a Doctor requirements, while keeping compatible features. Enforces rank/advancement budgets, unique sources, at most four classes and resolved choices. Adds regression tests for the reported errors and full trial rollback.
+
 ## 0.2.2
 
 Adds an unchecked Include Legendary and Mythical Pokémon checkbox to the Pokémon pool. Both Pokémon-only and trainer-party generation exclude those species by default, including alternate and Mega forms; enabling the option permits them while preserving all other filters. Uses National Pokédex classification through Pecharunt. Adds ordinary-pool, party, form, and Mega interaction regression tests.
