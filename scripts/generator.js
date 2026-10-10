@@ -4,9 +4,9 @@ export const MODULE_ID = "ptu-carbon-random-pokemon";
 
 export function checkSystem() {
   if (game.system.id !== "ptu" || game.system.version !== "4.4.3" || !game.ptu?.species?.generator) {
-    throw new Error("This release requires PokÃ©mon Carbon 4.4.3 (system ID ptu) on Foundry VTT 13. Other PTU forks have not been validated.");
+    throw new Error("This release requires Pokémon Carbon 4.4.3 (system ID ptu) on Foundry VTT 13. Other PTU forks have not been validated.");
   }
-  if (!game.user.isGM) throw new Error("Only a GM can generate PokÃ©mon.");
+  if (!game.user.isGM) throw new Error("Only a GM can generate Pokémon.");
 }
 
 export function validateOptions(input = {}) {
@@ -135,7 +135,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
         shiny: generator.shiny, form: actor.system.form || "", hp: complete.system.health.max,
         moves: items.filter(item => item.type === "move").map(item => item.name).join(", "),
         abilities: items.filter(item => item.type === "ability").map(item => item.name).join(", "),
-        stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${bases[key] + points[key]}`).join(" Â· ") }
+        stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${bases[key] + points[key]}`).join(" · ") }
     });
   }
   return batch;
@@ -143,7 +143,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
 
 export async function createBatch(batch) {
   checkSystem();
-  if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1â€“350 actors first.");
+  if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1–350 actors first.");
   // A single creation call embeds all items at actor creation, avoiding half-built actors.
   const data = batch.map(entry => foundry.utils.deepClone(entry.data));
   return CONFIG.Actor.documentClass.createDocuments(data, { keepId: data.some(actor => actor._id) });
