@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.4
+
+- Check item-backed ChoiceSet references before Carbon refresh, including automatic feature and edge prerequisites. Candidates with missing documents are skipped before Carbon can dereference a null item or leave its refresh mutex locked.
+- Add regression coverage for missing direct choices and missing choices in prerequisite features.
+
 ## 0.2.3
 
 Fixes trainer generation aborting on unsupported or unmet feature prerequisites. Replaces Carbon's hypothetical-skill randomizeAll selection with incremental trials against real ranks and Carbon's native prerequisite/dependency resolver. Rejects and rolls back incompatible candidates, including the reported Mystic Senses and I'm a Doctor requirements, while keeping compatible features. Enforces rank/advancement budgets, unique sources, at most four classes and resolved choices. Adds regression tests for the reported errors and full trial rollback.
