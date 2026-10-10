@@ -125,6 +125,21 @@ test("creation reuses the Random Encounter Gen root folder", async () => {
   assert.equal(created[0].folder, created[1].folder);
 });
 
+test("trainer parties apply Legendary/Mythical opt-in to ordinary and Mega members", async () => {
+  environment();
+  const normal = (await game.packs.get("ptu.species").getDocuments())[0];
+  const rare = { ...normal, name: "Mew", system: { ...normal.system, number: 151 } };
+  const mega = { ...normal, name: "Mewtwo-Mega-X", system: { ...normal.system, number: 150, form: "mega-x" } };
+  game.packs.get("ptu.species").getDocuments = async () => [rare, mega, normal];
+  const ordinary = await prepareEncounter({ mode: "party", partySize: 3 }, { Builder });
+  assert.ok(ordinary.slice(1).every(entry => entry.data.name === "Charmander"));
+  const mythical = await prepareEncounter({ mode: "party", search: "Mew", includeLegendary: true }, { Builder });
+  assert.ok(mythical.slice(1).every(entry => entry.data.name === "Mew"));
+  await assert.rejects(prepareEncounter({ mode: "party", partySize: 1, trainerHasMega: true }, { Builder }), /No Mega species/);
+  const enabled = await prepareEncounter({ mode: "party", partySize: 1, trainerHasMega: true, includeLegendary: true }, { Builder });
+  assert.equal(enabled[1].data.name, "Mewtwo-Mega-X");
+});
+
 test("curated generic game artwork files are real PNGs with matching source attribution", () => {
   for (const art of TRAINER_ART) {
     const file = readFileSync(new URL(`../assets/trainers/${art.file}`, import.meta.url));

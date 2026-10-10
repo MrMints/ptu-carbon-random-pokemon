@@ -30,6 +30,22 @@ test("zero percent shiny remains false", async () => {
   assert.equal(batch[0].summary.shiny, false);
 });
 
+test("Legendary and Mythical species require opt-in and still obey other filters", async () => {
+  const normal = setup();
+  const legendary = { ...normal, name: "Articuno", system: { ...normal.system, number: 144 } };
+  const mythical = { ...normal, name: "Mew", system: { ...normal.system, number: "151" } };
+  game.packs.get("ptu.species").getDocuments = async () => [legendary, mythical, normal];
+  const ordinary = await prepareBatch({ amount: 20, includeForms: true });
+  assert.ok(ordinary.every(entry => entry.data.name === "Charmander"));
+  for (const search of ["Articuno", "Mew"]) {
+    await assert.rejects(prepareBatch({ search }), /No species/);
+    const enabled = await prepareBatch({ search, includeLegendary: true });
+    assert.equal(enabled[0].data.name, search);
+  }
+  await assert.rejects(prepareBatch({ search: "Articuno", includeLegendary: true, type: "Water" }), /No species/);
+  assert.equal(created.length, 0);
+});
+
 test("pool choices only contain compendiums with species and shiny defaults to 0.01 percent", async () => {
   setup();
   const packs = [

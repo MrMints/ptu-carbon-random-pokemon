@@ -90,3 +90,22 @@ test("invalid inputs fail before actor creation", () => {
   for (const options of [ { amount: 0 }, { amount: 51 }, { minLevel: 0 }, { maxLevel: 101 }, { minLevel: 20, maxLevel: 1 }, { shinyChance: NaN }, { shinyChance: -1 }, { shinyChance: 101 }, { folder: "bad" }, { statStyle: "bad" }, { nature: "bad" } ]) assert.throws(() => validateOptions(options));
   assert.equal(validateOptions({ minLevel: "100", maxLevel: "100", shinyChance: 0, folder: "good" }).minLevel, 100);
 });
+
+test("Legendary/Mythical classification covers generations, evolvable species and alternate forms", () => {
+  for (const number of [144, 150, 151, 251, 384, 386, 489, 493, 494, 647, 716, 719, 772, 789, 800, 808, 809, 888, 891, 893, 905, 1007, 1017, 1024, 1025]) {
+    const species = { type: "species", name: "Test species", system: { number } };
+    assert.equal(matchesSpecies(species), false, `National Dex ${number}`);
+    assert.equal(matchesSpecies(species, { includeLegendary: true }), true);
+    const form = { ...species, system: { number: String(number), form: "regional" } };
+    assert.equal(matchesSpecies(form, { includeForms: true }), false);
+    assert.equal(matchesSpecies(form, { includeLegendary: true, includeForms: true }), true);
+  }
+  // Ultra Beasts and Paradox species are separate categories; do not silently exclude them.
+  for (const number of [25, 143, 149, 248, 793, 803, 984, 1009, 1020]) {
+    assert.equal(matchesSpecies({ type: "species", name: "Ordinary", system: { number } }), true);
+  }
+  const mega = { type: "species", name: "Mewtwo-Mega-X", system: { number: 150, form: "mega-x" } };
+  assert.equal(matchesSpecies(mega, { megaOnly: true }), false);
+  assert.equal(matchesSpecies(mega, { includeLegendary: true }), false);
+  assert.equal(matchesSpecies(mega, { megaOnly: true, includeLegendary: true }), true);
+});
