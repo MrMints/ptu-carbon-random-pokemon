@@ -28,7 +28,7 @@ Forge installation follows the [official custom-module documentation](https://fo
 
 ## Generate
 
-Choose a species compendium, optional name or Pokédex number, type, habitat, level range, amount, nature, shiny chance, stat style, move style, and destination Actor folder. Names or numbers separated by commas create a combined pool. Blank search means any matching species. Compendium forms are opt-in.
+Choose a species compendium, optional name or Pokédex number, type, habitat, level range, amount, nature, shiny chance, stat style, move style. Names or numbers separated by commas create a combined pool. Blank search means any matching species. Compendium forms are opt-in. The pool selector lists only compendiums containing species. Mega forms are excluded from ordinary generation, even when forms are enabled. Shiny chance defaults to **0.01%**. All generated actors are organized under **Random Encounter Gen**, with trainer folders and Party subfolders. The generator window scrolls to reach all controls and previews.
 
 Click **Preview encounter**. Review each Pokémon's level, nature, gender, shiny status, stats, HP, abilities, and moves. Reroll as often as you like. **Create actors** saves the exact preview and embeds its species and items. A single generated actor opens its Carbon sheet. Changing an option clears the preview to prevent saving outdated results. This is GM-only. Generate 1–50 Pokémon or trainers at a time; a trainer party can add up to six Pokémon per trainer. Actors have portrait and token textures. Enable **Also place tokens on the open scene** to create actual scene tokens. Compendium entries are not modified.
 
@@ -36,9 +36,9 @@ The level is selected uniformly among levels in the requested range that have el
 
 ## Trainers and parties
 
-Choose **Pokémon only**, **Trainers only**, or **Trainers with their Pokémon**. Trainer levels have their own minimum/maximum controls (1–50). Set both to the same value for an exact level. Party mode adds 1–6 Pokémon per trainer, using the separate Pokémon level range and species filters. Carbon ownership flags link each Pokémon to its trainer.
+Choose **Pokémon only**, **Trainers only**, or **Trainers with their Pokémon**. Trainer levels have their own minimum/maximum controls (1–50). Set both to the same value for an exact level. Party mode adds 1–6 Pokémon per trainer, using the separate Pokémon level range and species filters. Carbon ownership flags link each Pokémon to its trainer. Check **Each trainer has one Mega Pokémon** to generate exactly one Mega within each party size; the rest remain ordinary species. The selected compendium, filters and level range must contain an eligible Mega. This creates the Mega species actor; battle transformation, equipment and Mega Evolution prerequisites remain under GM control. For the macro API, use `trainerHasMega: true` with `mode: "party"`.
 
-Carbon's installed NPC builder selects names, classes, features, edges, skills and item choices. The final actor preparation supplies the world's stat-point budget, maximum health and AP. Lower-cap advancement variants reject unsupported trainer levels. These are generated NPC builds. Duplicate source selections are removed and classes are limited to four. Unknown or unmet prerequisites, missing referenced items, and unresolved choices stop generation with a reroll message. Repeated ranks of the same feature are not automatically purchased.
+Names are randomly selected from ordinary game opponents, such as Joey and Janice, with the selected generic trainer class. Name references: [Youngster](https://bulbapedia.bulbagarden.net/wiki/Youngster_(Trainer_class)) and [Lass](https://bulbapedia.bulbagarden.net/wiki/Lass_(Trainer_class)). Carbon's installed NPC builder selects classes, features, edges, skills and item choices. The final actor preparation supplies the world's stat-point budget, maximum health and AP. Lower-cap advancement variants reject unsupported trainer levels. These are generated NPC builds. Duplicate source selections are removed and classes are limited to four. Unknown or unmet prerequisites, missing referenced items, and unresolved choices stop generation with a reroll message. Repeated ranks of the same feature are not automatically purchased.
 
 Select a generic game artwork option or random artwork. Bundled unmodified ORAS Ace Trainer and Lass artwork supplies portraits and matching token textures; there are no named story characters in the pool. Tokens use the same complete character artwork, with no AI alteration. Artwork source links appear in the preview and actor flags. See [artwork attribution](assets/trainers/ATTRIBUTION.md).
 
@@ -64,7 +64,7 @@ The module handles **natural Pokémon generation** under the core PTU 1.05 rules
 
 Targeted against Pokémon Carbon **4.4.3**, upstream tree **172313d320bba4cca34c299913c3a3fe4c0abc26**. The release includes automated rules and integration-contract tests. Tests cover every nature pair at every level with every stat style (18,000 allocations), randomized base-stat spreads, ability thresholds, move limits, validation, reference failures, preview isolation, shiny endpoints, exact actor creation data, all three encounter modes, trainer level endpoints, party ownership, PNG assets, Forge asset URL resolution, prerequisites and scene token placement. The actual Carbon NPC builder was also exercised in an isolated development harness at levels 1, 5, 25 and 50 using controlled compendium documents.
 
-**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. Version **0.2.0** adds trainer and party generation.
+**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. Version **0.2.1** updates species pools, Mega selection, folders, game trainer names, shiny defaults and scrolling.
 
 ## Macro API
 
@@ -83,7 +83,7 @@ const batch = await api.preview({
   minLevel: 10,
   maxLevel: 15,
   search: "Pikachu, Eevee",
-  shinyChance: 1,
+  shinyChance: 0.01,
   statStyle: "balanced",
   moveStyle: "random",
   pack: "ptu.species"
@@ -104,7 +104,7 @@ npm test
 npm run check
 ```
 
-Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.2.0` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
+Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.2.1` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
 
 Rule references: PTU 1.05 Core, **Managing Pokémon**, pp. 198–200 ([base-stat excerpt](https://kddnewton.com/pokerpg-builder/PokeRPG-Base-Stat-Info.pdf)); Carbon's [generator API](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/scripts/game-ptu.js), [native generator](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/generator.js), and [actor preparation](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/document.js).
 
