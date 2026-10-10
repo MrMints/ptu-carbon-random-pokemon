@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+Adds an unchecked Include Legendary and Mythical Pokémon checkbox to the Pokémon pool. Both Pokémon-only and trainer-party generation exclude those species by default, including alternate and Mega forms; enabling the option permits them while preserving all other filters. Uses National Pokédex classification through Pecharunt. Adds ordinary-pool, party, form, and Mega interaction regression tests.
+
 ## 0.2.1
 
 Limits pool choices to compendiums with species. Ordinary rolls exclude Mega forms regardless of Include forms; trainer party mode has an explicit checkbox for exactly one Mega within the party size. All actors use a reusable Random Encounter Gen root folder. Trainer and token names use random ordinary game-opponent first names. Shiny chance defaults to 0.01%. The window is height-limited and its entire content scrolls. Adds regression coverage for these generation behaviors.
