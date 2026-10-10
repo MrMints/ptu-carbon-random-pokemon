@@ -49,6 +49,23 @@ function environment() {
   };
 }
 
+test("trainer parties resolve legacy bubblebeam references to Bubble Beam without changing source species", async () => {
+  environment();
+  const species = (await game.packs.get("ptu.species").getDocuments())[0];
+  species.system.moves.level = [{ slug: "bubblebeam", uuid: "old-bubblebeam", level: 1 }];
+  const move = { type: "move", name: "Bubble Beam", slug: "bubble-beam", uuid: "bubble-beam-current" };
+  resolved.set(move.uuid, move);
+  game.packs.set("ptu.moves", { async getDocuments() { return [move]; } });
+  const batch = await prepareEncounter({ mode: "party", amount: 2, partySize: 3, minLevel: 5, maxLevel: 5 }, { Builder });
+  assert.equal(batch.length, 8);
+  for (const member of batch.filter(entry => entry.data.type === "pokemon")) {
+    assert.equal(member.summary.moves, "Bubble Beam");
+    assert.ok(batch.some(entry => entry.data._id === member.data.flags.ptu.party.trainer));
+  }
+  assert.equal(species.system.moves.level[0].uuid, "old-bubblebeam");
+  assert.equal(created.length, 0);
+});
+
 test("trainer levels, full health/AP, Carbon stat budget, generic portrait and matching token", async () => {
   for (const level of [1, 5, 25, 50]) {
     environment();
