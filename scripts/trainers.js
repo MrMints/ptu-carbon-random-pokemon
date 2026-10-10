@@ -87,7 +87,7 @@ export async function prepareTrainer(input, { Builder } = {}) {
       stats: Object.fromEntries(STAT_KEYS.map(key => [key, { levelUp: 0 }])), health: { value: 0 }, ap: { value: 0 } },
     prototypeToken: { name: `${art.label.replace(/ \((Female|Male)\)$/, "")} ${trainer.name}`, actorLink: true, width: 1, height: 1,
       texture: { src: portrait }, disposition: builder.alliance === "opposition" ? -1 : 0 },
-    flags: { [MODULE_ID]: { generated: true, version: "0.2.1", level, art: art.id, artSource: art.source } }
+    flags: { [MODULE_ID]: { generated: true, version: "0.2.2", level, art: art.id, artSource: art.source } }
   };
   // Carbon's actor preparation includes the world's advancement variant and item rules.
   const temporary = new CONFIG.Actor.documentClass(data);

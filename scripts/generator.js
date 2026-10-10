@@ -110,7 +110,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
     actor.folder = options.folder || null;
     actor.items = items;
     actor.flags ??= {};
-    actor.flags[MODULE_ID] = { generated: true, version: "0.2.1", source: source.uuid, level, statStyle: options.statStyle };
+    actor.flags[MODULE_ID] = { generated: true, version: "0.2.2", source: source.uuid, level, statStyle: options.statStyle };
     // Missing art should use the species icon rather than produce a broken texture.
     actor.img ||= source.img || "icons/svg/mystery-man.svg";
     actor.prototypeToken.texture ??= {};

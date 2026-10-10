@@ -19,7 +19,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   batch = [];
   busy = false;
-  values = { mode: "pokemon", amount: 1, trainerMinLevel: 1, trainerMaxLevel: 5, partySize: 3, trainerHasMega: false, minLevel: 5, maxLevel: 10, shinyChance: 0.01, includeForms: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest", placeTokens: false };
+  values = { mode: "pokemon", amount: 1, trainerMinLevel: 1, trainerMaxLevel: 5, partySize: 3, trainerHasMega: false, minLevel: 5, maxLevel: 10, shinyChance: 0.01, includeForms: false, includeLegendary: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest", placeTokens: false };
   message = "Choose Pokémon, trainers, or trainers with their Pokémon, then preview.";
   listenerController;
 
@@ -61,6 +61,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static readForm(form) {
     const values = Object.fromEntries(new FormData(form));
     values.includeForms = form.elements.includeForms?.checked ?? false;
+    values.includeLegendary = form.elements.includeLegendary?.checked ?? false;
     values.placeTokens = form.elements.placeTokens?.checked ?? false;
     values.trainerHasMega = form.elements.trainerHasMega?.checked ?? false;
     return values;

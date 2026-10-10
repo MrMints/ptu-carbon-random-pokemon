@@ -109,8 +109,21 @@ export function isMegaSpecies(species) {
   return [species.name, species.slug, species.system?.form].some(value => /(?:^|[\s_-])mega(?:$|[\s_-])/i.test(value ?? ""));
 }
 
-export function matchesSpecies(species, { search = "", type = "", habitat = "", includeForms = false, megaOnly = false } = {}) {
+// National Pokédex numbers preserve classification across regional and Mega forms.
+// Classification source: https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/pokemon_species.csv
+const LEGENDARY_MYTHICAL_NUMBERS = new Set([
+  144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379,
+  380, 381, 382, 383, 384, 385, 386, 480, 481, 482, 483, 484, 485, 486,
+  487, 488, 489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643,
+  644, 645, 646, 647, 648, 649, 716, 717, 718, 719, 720, 721, 772, 773,
+  785, 786, 787, 788, 789, 790, 791, 792, 800, 801, 802, 807, 808, 809,
+  888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 905, 1001, 1002,
+  1003, 1004, 1007, 1008, 1014, 1015, 1016, 1017, 1024, 1025,
+]);
+
+export function matchesSpecies(species, { search = "", type = "", habitat = "", includeForms = false, includeLegendary = false, megaOnly = false } = {}) {
   if (species.type !== "species") return false;
+  if (!includeLegendary && LEGENDARY_MYTHICAL_NUMBERS.has(Number(species.system.number))) return false;
   if (isMegaSpecies(species) !== megaOnly) return false;
   if (!megaOnly && !includeForms && species.system.form) return false;
   const terms = search.toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
