@@ -3,6 +3,40 @@ import { pick, shuffle } from "./rules.js";
 const problems = builder => [...(builder.warnings?.unmet ?? []), ...(builder.warnings?.unknown ?? [])];
 const computed = builder => [...builder.trainer.features.computed, ...builder.trainer.edges.computed];
 
+// Carbon refresh dereferences every item-backed ChoiceSet option without checking
+// for missing documents. Check candidates and automatic dependencies first: a
+// failed refresh also leaves Carbon's mutex locked, so catching it is too late.
+function referenceCheck(builder) {
+  const documents = new Map();
+  const resolve = uuid => {
+    if (!documents.has(uuid)) documents.set(uuid, Promise.resolve().then(() => fromUuid(uuid)).catch(() => null));
+    return documents.get(uuid);
+  };
+  return async candidate => {
+    const source = await resolve(candidate.uuid);
+    if (!source) return false;
+    const item = { ...source.toObject(), uuid: candidate.uuid };
+    const dependencies = builder.allItemPrereqs ? await builder.allItemPrereqs(item.system?.prerequisites ?? [], {
+      level: builder.trainer.level,
+      allComputed: [...computed(builder), item],
+      skillsComputed: Object.fromEntries(Object.entries(builder.trainer.skills).map(([key, skill]) => [key, skill.value]))
+    }) : {};
+    for (const document of [item, ...(dependencies.allNewFeatures ?? []), ...(dependencies.allNewEdges ?? [])]) {
+      for (const rule of document.system?.rules ?? []) {
+        if (rule.key !== "ChoiceSet") continue;
+        if (!Array.isArray(rule.choices)) return false;
+        // Match Carbon's item-backed choice detection, including mixed lists.
+        if (!rule.choices.every(choice => /Compendium\.([\w\.]+).Item.[a-zA-Z0-9]+/.test(choice.value))) continue;
+        for (const choice of rule.choices) {
+          const target = await resolve(choice.value);
+          if (!target?.name || !target.uuid) return false;
+        }
+      }
+    }
+    return true;
+  };
+}
+
 function spendSkillPoints(builder, budget) {
   const skills = Object.values(builder.trainer.skills);
   let used = skills.reduce((sum, skill) => sum + skill.value, 0);
@@ -44,6 +78,7 @@ export async function prepareTrainerBuild(builder) {
   spendSkillPoints(builder, builder.maxSkillPoints - edgeLimit);
   await builder.refresh();
   const skipped = new Set();
+  const referencesValid = referenceCheck(builder);
   for (let pass = 0; pass < featureLimit + edgeLimit; pass++) {
     let accepted = false;
     for (const bucket of ["classes", "features", "edges"]) {
@@ -56,6 +91,10 @@ export async function prepareTrainerBuild(builder) {
         if (bucket === "edges" && builder.trainer.edges.computed.length >= edgeLimit) break;
         // Skill-advancement edges are represented by the distributed ranks already.
         if (bucket === "edges" && ["Basic Skills", "Adept Skills", "Expert Skills", "Master Skills"].includes(candidate.label)) continue;
+        if (!await referencesValid(candidate)) {
+          skipped.add(candidate.label);
+          continue;
+        }
         const previous = foundry.utils.deepClone(builder.trainer);
         builder.trainer[bucket].selected.push(candidate);
         await builder.refresh();
