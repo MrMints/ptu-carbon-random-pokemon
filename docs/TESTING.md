@@ -35,3 +35,13 @@ Record Foundry/Carbon versions, species, options, screenshots, and console error
 ## Forge-hosted test
 
 Use a Forge game configured for Foundry 13 and Carbon 4.4.3. Install this custom module through Bazaar → Install From Manifest using the README URL, then enable and reload. Confirm version 0.2.0, each trainer portrait and token texture, the saved party ownership and party folders after reload, and optional scene token placement. Check the portrait/token URL returned by the configured Forge file picker: both must refer to the same hosted image. No image upload, local filesystem access or Forge API key should be required. Please record console errors and the exact Foundry/system/module versions if installation or generation fails.
+
+## 0.2.1 checks
+- Pool dropdown excludes moves/abilities-only compendiums; mixed compendiums use species items only.
+- Include forms never rolls a Mega in Pokemon-only mode or unchecked trainer parties.
+- Checked trainer parties contain exactly one Mega per trainer, within party size; impossible filters fail preview without writes.
+- Actor creation reuses Random Encounter Gen; trainers and Party subfolders stay underneath it.
+- Trainer actor and prototype token share a random game-opponent name.
+- New window starts at 0.01% shiny chance.
+- Resize the window on a small screen and scroll from the heading through controls, previews and credit footer.
+
