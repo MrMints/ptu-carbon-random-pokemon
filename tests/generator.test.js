@@ -64,6 +64,30 @@ test("missing references fail without silently omitting moves or creating actors
   assert.equal(created.length, 0);
 });
 
+test("stale ability UUIDs resolve by exact slug from Carbon's typed compendium without changing species", async () => {
+  const species = setup();
+  species.system.abilities.basic = [{ slug: "torrent", uuid: "stale-ability" }];
+  const torrent = { type: "ability", name: "Torrent", slug: "torrent", uuid: "installed-torrent" };
+  resolved.set(torrent.uuid, torrent);
+  let loads = 0;
+  game.packs.set("ptu.abilities", { async getDocuments() { loads++; return [torrent]; } });
+  const batch = await prepareBatch({ amount: 3 });
+  assert.equal(loads, 1);
+  assert.ok(batch.every(entry => entry.summary.abilities === "Torrent"));
+  assert.equal(species.system.abilities.basic[0].uuid, "stale-ability");
+  assert.equal(created.length, 0);
+});
+
+test("missing and ambiguous slug matches still reject generation rather than dropping abilities", async () => {
+  const species = setup();
+  species.system.abilities.basic = [{ slug: "torrent" }];
+  game.packs.set("ptu.abilities", { async getDocuments() { return [
+    { type: "ability", slug: "torrent", uuid: "one" }, { type: "ability", slug: "torrent", uuid: "two" }
+  ]; } });
+  await assert.rejects(prepareBatch(), /Missing ability reference: torrent/);
+  assert.equal(created.length, 0);
+});
+
 test("GM and compatibility checks reject unsupported systems", async () => {
   setup(); game.user.isGM = false;
   await assert.rejects(prepareBatch(), /Only a GM/);
