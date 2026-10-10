@@ -66,3 +66,5 @@ Use a Forge game configured for Foundry 13 and Carbon 4.4.3. Install this custom
 
 - Version 0.2.5: 32 automated tests pass. Test a species with a stale Torrent UUID while Torrent is present in ptu.abilities; preview should include Torrent and leave the source species unchanged. Missing/ambiguous matches must still fail.
 - Female sprite 404 requests may occur during Carbon's normal fallback to standard sprites. Check the resulting actor and token images rather than treating each probe as a generation failure.
+
+- Version 0.2.6: 34 tests pass, including trainer parties using legacy bubblebeam references resolved to Bubble Beam / bubble-beam. Verify matching remains unique and source species unchanged.
