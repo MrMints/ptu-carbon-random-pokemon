@@ -45,3 +45,10 @@ Use a Forge game configured for Foundry 13 and Carbon 4.4.3. Install this custom
 - New window starts at 0.01% shiny chance.
 - Resize the window on a small screen and scroll from the heading through controls, previews and credit footer.
 
+
+## 0.2.2 checks
+- Confirm Include Legendary and Mythical Pokemon starts unchecked in both Pokemon-only and trainer-party modes.
+- Search Mew or Articuno while unchecked: preview reports no matching species. Enable the checkbox: the selected species can generate at an eligible level.
+- In trainer-party mode, Mega Mewtwo requires both the Mega option and Legendary/Mythical checkbox.
+- Enabling rare species still respects the other filters and does not guarantee a rare roll in an unrestricted pool.
+
