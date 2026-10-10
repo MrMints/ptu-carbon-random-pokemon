@@ -4,9 +4,9 @@ export const MODULE_ID = "ptu-carbon-random-pokemon";
 
 export function checkSystem() {
   if (game.system.id !== "ptu" || game.system.version !== "4.4.3" || !game.ptu?.species?.generator) {
-    throw new Error("This release requires Pokémon Carbon 4.4.3 (system ID ptu) on Foundry VTT 13. Other PTU forks have not been validated.");
+    throw new Error("This release requires PokÃ©mon Carbon 4.4.3 (system ID ptu) on Foundry VTT 13. Other PTU forks have not been validated.");
   }
-  if (!game.user.isGM) throw new Error("Only a GM can generate Pokémon.");
+  if (!game.user.isGM) throw new Error("Only a GM can generate PokÃ©mon.");
 }
 
 export function validateOptions(input = {}) {
@@ -45,15 +45,28 @@ export async function speciesCompendiums() {
   return eligible.filter(Boolean);
 }
 
-async function checkReferences(generator) {
+async function checkReferences(generator, referencePacks) {
   const references = [
     ...generator.moves.map(data => ({ data, type: "move" })),
     ...generator.abilities.map(({ data }) => ({ data, type: "ability" })),
     ...generator.capabilities.map(data => ({ data, type: "capability" }))
   ];
   for (const { data, type } of references) {
-    const document = data.uuid ? await fromUuid(data.uuid) : null;
-    if (!document || document.type !== type) throw new Error(`Missing ${type} reference: ${data.slug ?? data.uuid ?? "unnamed"}. Repair this species in its compendium before generating it.`);
+    let document = data.uuid ? await fromUuid(data.uuid).catch(() => null) : null;
+    if (!document || document.type !== type) {
+      // Imported species can retain stale UUIDs even when their named items are
+      // installed. Resolve Carbon's own typed compendium by exact slug, then
+      // update only this isolated generator's reference before native creation.
+      if (!referencePacks.has(type)) {
+        const pack = game.packs.get(`ptu.${{ move: "moves", ability: "abilities", capability: "capabilities" }[type]}`);
+        referencePacks.set(type, pack ? await pack.getDocuments() : []);
+      }
+      const matches = referencePacks.get(type).filter(item => item.type === type && data.slug &&
+        (item.slug === data.slug || item.system?.slug === data.slug));
+      document = matches.length === 1 ? matches[0] : null;
+      if (document?.uuid) data.uuid = document.uuid;
+    }
+    if (!document?.uuid || document.type !== type) throw new Error(`Missing ${type} reference: ${data.slug ?? data.uuid ?? "unnamed"}. Check that Carbon's ${type} compendium is installed and contains this item.`);
   }
 }
 
@@ -70,6 +83,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
   }
   if (!levels.length) throw new Error("No matching species meet the selected level range. Raise the level or change species.");
   const batch = [];
+  const referencePacks = new Map();
   for (let i = 0; i < options.amount; i++) {
     const { level, pool } = pick(levels);
     const source = pick(pool);
@@ -89,7 +103,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
     generator.prepareAbilities = () => generator.abilities = chooseAbilities(copy.system.abilities, level);
     generator.prepareMoves = () => generator.moves = chooseMoves(copy.system.moves.level, level, options.moveStyle);
     await generator.prepare({ minLevel: level, maxLevel: level, shinyChance: 0, statRandomness: 0, preventEvolution: true, saveDefault: false });
-    await checkReferences(generator);
+    await checkReferences(generator, referencePacks);
     const { actor, items } = await generator.create({ generate: false, folder: null });
     const speciesItem = items.find(item => item.type === "species");
     speciesItem.flags ??= {};
@@ -110,7 +124,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
     actor.folder = options.folder || null;
     actor.items = items;
     actor.flags ??= {};
-    actor.flags[MODULE_ID] = { generated: true, version: "0.2.4", source: source.uuid, level, statStyle: options.statStyle };
+    actor.flags[MODULE_ID] = { generated: true, version: "0.2.5", source: source.uuid, level, statStyle: options.statStyle };
     // Missing art should use the species icon rather than produce a broken texture.
     actor.img ||= source.img || "icons/svg/mystery-man.svg";
     actor.prototypeToken.texture ??= {};
@@ -121,7 +135,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
         shiny: generator.shiny, form: actor.system.form || "", hp: complete.system.health.max,
         moves: items.filter(item => item.type === "move").map(item => item.name).join(", "),
         abilities: items.filter(item => item.type === "ability").map(item => item.name).join(", "),
-        stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${bases[key] + points[key]}`).join(" · ") }
+        stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${bases[key] + points[key]}`).join(" Â· ") }
     });
   }
   return batch;
@@ -129,7 +143,7 @@ export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
 
 export async function createBatch(batch) {
   checkSystem();
-  if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1–350 actors first.");
+  if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1â€“350 actors first.");
   // A single creation call embeds all items at actor creation, avoiding half-built actors.
   const data = batch.map(entry => foundry.utils.deepClone(entry.data));
   return CONFIG.Actor.documentClass.createDocuments(data, { keepId: data.some(actor => actor._id) });
