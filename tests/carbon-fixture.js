@@ -13,6 +13,7 @@ export function setup() {
     ["ability", { type: "ability", name: "Blaze" }],
     ["capability", { type: "capability", name: "Firestarter" }]
   ]);
+  for (const [uuid, document] of resolved) document.uuid = uuid;
   const species = {
     name: "Charmander", type: "species", slug: "charmander", uuid: "Compendium.ptu.species.Item.charmander", img: "charmander.webp",
     system: { number: 4, stats: base, abilities: { basic: [{ slug: "blaze", uuid: "ability" }], advanced: [{ slug: "flame", uuid: "ability2" }], high: [{ slug: "power", uuid: "ability3" }] }, moves: { level: [{ slug: "scratch", uuid: "move", level: 1 }] }, capabilities: { other: [{ slug: "firestarter", uuid: "capability" }] }, evolutions: [] },
