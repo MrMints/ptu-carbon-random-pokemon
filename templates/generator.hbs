@@ -20,7 +20,7 @@
     <label>Generic game portrait and token<select name="trainerArt"><option value="">Random generic trainer</option>{{#each trainerArt}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     {{#if showParty}}<label>Pokémon per trainer<input type="number" name="partySize" value="{{values.partySize}}" min="1" max="6" step="1" required></label>{{/if}}
     {{#if showParty}}<label class="carbon-checkbox"><input type="checkbox" name="trainerHasMega" {{#if values.trainerHasMega}}checked{{/if}}> Each trainer has one Mega Pokémon (included in party size)</label>{{/if}}
-    <p class="carbon-hint">Carbon's NPC builder chooses classes, features, edges and skills. Portraits and matching token textures use generic game trainers. {{#if showParty}}Pokémon levels are selected separately below.{{/if}}</p>
+    <p class="carbon-hint">Builds compatible classes, features, edges and skills using Carbon's prerequisite checks. Incompatible feature candidates are skipped. Portraits and matching token textures use generic game trainers. {{#if showParty}}Pokémon levels are selected separately below.{{/if}}</p>
   </fieldset>
   {{/if}}
   {{#if showPokemon}}
