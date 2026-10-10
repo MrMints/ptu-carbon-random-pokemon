@@ -7,7 +7,7 @@
     <legend>Encounter</legend>
     <label>Generate<select name="mode">{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Amount (Pokémon or trainers)<input type="number" name="amount" value="{{values.amount}}" min="1" max="50" step="1" required></label>
-    <label>Actor folder<select name="folder"><option value="">Actors directory root</option>{{#each folders}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    <p class="carbon-hint">Actors are saved under <strong>Random Encounter Gen</strong>. Each trainer has a folder with a Party subfolder for their Pokémon.</p>
     <label class="carbon-checkbox"><input type="checkbox" name="placeTokens" {{#if values.placeTokens}}checked{{/if}}> Also place tokens on the open scene</label>
   </fieldset>
   {{#if showTrainers}}
@@ -19,6 +19,7 @@
     </div>
     <label>Generic game portrait and token<select name="trainerArt"><option value="">Random generic trainer</option>{{#each trainerArt}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     {{#if showParty}}<label>Pokémon per trainer<input type="number" name="partySize" value="{{values.partySize}}" min="1" max="6" step="1" required></label>{{/if}}
+    {{#if showParty}}<label class="carbon-checkbox"><input type="checkbox" name="trainerHasMega" {{#if values.trainerHasMega}}checked{{/if}}> Each trainer has one Mega Pokémon (included in party size)</label>{{/if}}
     <p class="carbon-hint">Carbon's NPC builder chooses classes, features, edges and skills. Portraits and matching token textures use generic game trainers. {{#if showParty}}Pokémon levels are selected separately below.{{/if}}</p>
   </fieldset>
   {{/if}}
@@ -36,7 +37,7 @@
       <label>Habitat<select name="habitat"><option value="">Any habitat</option>{{#each habitats}}<option {{#if selected}}selected{{/if}} value="{{value}}">{{value}}</option>{{/each}}</select></label>
     </div>
     <label class="carbon-checkbox"><input type="checkbox" name="includeForms" {{#if values.includeForms}}checked{{/if}}> Include compendium forms</label>
-    <p class="carbon-hint">Species are eligible at their listed minimum level. Special evolution conditions and temporary forms need GM review.</p>
+    <p class="carbon-hint">Only species items are used. Mega Pokémon are excluded unless the trainer's Mega option is checked. Species must meet their listed minimum level.</p>
   </fieldset>
   <fieldset {{#if busy}}disabled{{/if}}>
     <legend>Generation</legend>
