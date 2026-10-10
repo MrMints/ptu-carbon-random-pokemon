@@ -16,7 +16,7 @@ Fixes trainer generation aborting on unsupported or unmet feature prerequisites.
 
 ## 0.2.2
 
-Adds an unchecked Include Legendary and Mythical PokÃ©mon checkbox to the PokÃ©mon pool. Both PokÃ©mon-only and trainer-party generation exclude those species by default, including alternate and Mega forms; enabling the option permits them while preserving all other filters. Uses National PokÃ©dex classification through Pecharunt. Adds ordinary-pool, party, form, and Mega interaction regression tests.
+Adds an unchecked Include Legendary and Mythical Pokémon checkbox to the Pokémon pool. Both Pokémon-only and trainer-party generation exclude those species by default, including alternate and Mega forms; enabling the option permits them while preserving all other filters. Uses National Pokédex classification through Pecharunt. Adds ordinary-pool, party, form, and Mega interaction regression tests.
 
 ## 0.2.1
 
@@ -24,8 +24,8 @@ Limits pool choices to compendiums with species. Ordinary rolls exclude Mega for
 
 ## 0.2.0
 
-Adds PokÃ©mon-only, trainer-only, and trainer-with-party generation. Trainers have independent selectable levels (1â€“50, subject to the world's advancement variant), Carbon NPC classes/features/edges/skills, full health and AP, and generic ORAS portraits with matching token textures. Parties contain 1â€“6 PokÃ©mon per trainer and retain Carbon trainer ownership links. Optional placement creates actual tokens on the open scene. Adds source attribution for bundled unmodified game artwork and automated mode, level, linking, asset and token checks. Live-world QA remains pending.
+Adds Pokémon-only, trainer-only, and trainer-with-party generation. Trainers have independent selectable levels (1–50, subject to the world's advancement variant), Carbon NPC classes/features/edges/skills, full health and AP, and generic ORAS portraits with matching token textures. Parties contain 1–6 Pokémon per trainer and retain Carbon trainer ownership links. Optional placement creates actual tokens on the open scene. Adds source attribution for bundled unmodified game artwork and automated mode, level, linking, asset and token checks. Live-world QA remains pending.
 
 ## 0.1.0
 
-Initial development release for PokÃ©mon Carbon 4.4.3 and Foundry VTT 13. Adds filtered random generation, batch preview, exact actor creation, PTU stat allocation, cumulative ability pools, six-move limits, species isolation, validation, tests, and creator attribution. Live-world QA is pending.
+Initial development release for Pokémon Carbon 4.4.3 and Foundry VTT 13. Adds filtered random generation, batch preview, exact actor creation, PTU stat allocation, cumulative ability pools, six-move limits, species isolation, validation, tests, and creator attribution. Live-world QA is pending.
