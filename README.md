@@ -64,7 +64,7 @@ The module handles **natural Pokémon generation** under the core PTU 1.05 rules
 
 Targeted against Pokémon Carbon **4.4.3**, upstream tree **172313d320bba4cca34c299913c3a3fe4c0abc26**. The release includes automated rules and integration-contract tests. Tests cover every nature pair at every level with every stat style (18,000 allocations), randomized base-stat spreads, ability thresholds, move limits, validation, reference failures, preview isolation, shiny endpoints, exact actor creation data, all three encounter modes, trainer level endpoints, party ownership, PNG assets, Forge asset URL resolution, prerequisites and scene token placement. The actual Carbon NPC builder was also exercised in an isolated development harness at levels 1, 5, 25 and 50 using controlled compendium documents.
 
-**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. Version **0.2.3** fixes trainer generation failing on incompatible feature prerequisites.
+**Live Foundry validation remains required:** No licensed running Foundry world was available during development. The compatibility fields identify the intended target; they are not a claim of a completed live-world test. Use the [manual QA checklist](docs/TESTING.md) before relying on the module for a campaign. Version **0.2.4** fixes trainer generation failing on incompatible feature prerequisites.
 
 ## Macro API
 
@@ -104,10 +104,12 @@ npm test
 npm run check
 ```
 
-Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.2.3` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
+Package the module on Windows with `./tools/package.ps1`. A tag such as `v0.2.4` triggers the GitHub Actions release workflow, runs the tests, and publishes the module ZIP. The manifest download URL must match the version and tag. Release artifacts include only the module and documentation, not development fixtures or upstream data.
 
 Rule references: PTU 1.05 Core, **Managing Pokémon**, pp. 198–200 ([base-stat excerpt](https://kddnewton.com/pokerpg-builder/PokeRPG-Base-Stat-Info.pdf)); Carbon's [generator API](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/scripts/game-ptu.js), [native generator](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/generator.js), and [actor preparation](https://github.com/animenerdfreddurst/pokemon_carbon/blob/master/src/module/actor/pokemon/document.js).
 
 ## License and attribution
 
 Original module code is licensed under MIT; see [LICENSE](LICENSE). No Carbon source code, compendium data or PTU books are bundled. The three unmodified generic trainer PNGs are separately credited in assets/trainers/ATTRIBUTION.md and are not covered by the code license. Those projects and assets retain their respective ownership and terms. Pokémon belongs to Nintendo, Game Freak, and The Pokémon Company. This independent fan project is not affiliated with those companies or an official Pokémon Carbon release.
+
+Item-backed trainer choices are checked for missing compendium documents before Carbon processes candidates or their automatic prerequisites. Invalid candidates are skipped.
