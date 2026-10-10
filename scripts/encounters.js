@@ -11,7 +11,10 @@ export async function prepareEncounter(input = {}, dependencies = {}) {
     const trainer = await prepareTrainer(options, dependencies);
     batch.push(trainer);
     if (options.mode !== "party") continue;
-    const pokemon = await prepareBatch({ ...options, amount: options.partySize });
+    const pokemon = [];
+    if (options.trainerHasMega) pokemon.push(...await prepareBatch({ ...options, amount: 1 }, { megaOnly: true }));
+    const ordinaryCount = options.partySize - pokemon.length;
+    if (ordinaryCount) pokemon.push(...await prepareBatch({ ...options, amount: ordinaryCount }));
     for (const entry of pokemon) {
       entry.data._id = foundry.utils.randomID();
       entry.data.flags.ptu ??= {};
@@ -29,6 +32,9 @@ export async function createEncounter(batch, { placeTokens = false } = {}) {
   checkSystem();
   if (!Array.isArray(batch) || !batch.length || batch.length > 350) throw new Error("Preview a batch of 1–350 actors first.");
   const prepared = foundry.utils.deepClone(batch);
+  const existing = [...game.folders.values()].find(folder => folder.type === "Actor" && folder.name === "Random Encounter Gen" && !folder.folder);
+  const root = existing ?? await Folder.create({ name: "Random Encounter Gen", type: "Actor", folder: null });
+  for (const entry of prepared) entry.data.folder = root.id;
   // Carbon's party sheet expects a trainer folder and a Party child folder.
   for (const entry of prepared.filter(entry => entry.data.type === "character")) {
     const folder = await Folder.create({ name: entry.data.name, type: "Actor", folder: entry.data.folder || null });

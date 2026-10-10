@@ -105,9 +105,14 @@ export function minimumSpeciesLevel(species) {
   return levels.length ? Math.max(1, Math.min(...levels)) : 1;
 }
 
-export function matchesSpecies(species, { search = "", type = "", habitat = "", includeForms = false } = {}) {
+export function isMegaSpecies(species) {
+  return [species.name, species.slug, species.system?.form].some(value => /(?:^|[\s_-])mega(?:$|[\s_-])/i.test(value ?? ""));
+}
+
+export function matchesSpecies(species, { search = "", type = "", habitat = "", includeForms = false, megaOnly = false } = {}) {
   if (species.type !== "species") return false;
-  if (!includeForms && species.system.form) return false;
+  if (isMegaSpecies(species) !== megaOnly) return false;
+  if (!megaOnly && !includeForms && species.system.form) return false;
   const terms = search.toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
   if (terms.length && !terms.some(term => species.name.toLowerCase().includes(term) || String(species.system.number) === term)) return false;
   if (type && !(species.system.types ?? []).some(t => t.toLowerCase() === type.toLowerCase())) return false;

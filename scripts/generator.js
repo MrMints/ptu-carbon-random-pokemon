@@ -15,7 +15,7 @@ export function validateOptions(input = {}) {
     amount: integer(input.amount ?? 1, "Amount", 1, 50),
     minLevel: integer(input.minLevel ?? 5, "Minimum level", 1, 100),
     maxLevel: integer(input.maxLevel ?? 10, "Maximum level", 1, 100),
-    shinyChance: Number(input.shinyChance ?? 1),
+    shinyChance: Number(input.shinyChance ?? 0.01),
     statStyle: input.statStyle ?? "balanced",
     moveStyle: input.moveStyle ?? "latest",
     folder: input.folder ?? ""
@@ -36,6 +36,15 @@ export async function loadSpecies(packId = "ptu.species") {
   return (await pack.getDocuments()).filter(item => item.type === "species");
 }
 
+export async function speciesCompendiums() {
+  const packs = game.packs.filter(pack => pack.documentName === "Item");
+  const eligible = await Promise.all(packs.map(async pack => {
+    const index = await pack.getIndex({ fields: ["type"] });
+    return [...index].some(item => item.type === "species") ? pack : null;
+  }));
+  return eligible.filter(Boolean);
+}
+
 async function checkReferences(generator) {
   const references = [
     ...generator.moves.map(data => ({ data, type: "move" })),
@@ -48,11 +57,11 @@ async function checkReferences(generator) {
   }
 }
 
-export async function prepareBatch(input = {}) {
+export async function prepareBatch(input = {}, { megaOnly = false } = {}) {
   checkSystem();
   const options = validateOptions(input);
-  const species = (await loadSpecies(options.pack)).filter(entry => matchesSpecies(entry, options));
-  if (!species.length) throw new Error("No species match these filters. Try a broader search or include forms.");
+  const species = (await loadSpecies(options.pack)).filter(entry => matchesSpecies(entry, { ...options, megaOnly }));
+  if (!species.length) throw new Error(megaOnly ? "No Mega species match these filters. Choose a species compendium with Mega forms or broaden the filters." : "No species match these filters. Try a broader search or include forms.");
   // Draw a level uniformly from levels that have eligible species, then a species uniformly.
   const levels = [];
   for (let level = options.minLevel; level <= options.maxLevel; level++) {
@@ -101,7 +110,7 @@ export async function prepareBatch(input = {}) {
     actor.folder = options.folder || null;
     actor.items = items;
     actor.flags ??= {};
-    actor.flags[MODULE_ID] = { generated: true, version: "0.2.0", source: source.uuid, level, statStyle: options.statStyle };
+    actor.flags[MODULE_ID] = { generated: true, version: "0.2.1", source: source.uuid, level, statStyle: options.statStyle };
     // Missing art should use the species icon rather than produce a broken texture.
     actor.img ||= source.img || "icons/svg/mystery-man.svg";
     actor.prototypeToken.texture ??= {};

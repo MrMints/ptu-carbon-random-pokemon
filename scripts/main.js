@@ -1,5 +1,6 @@
 import { MODULE_ID, checkSystem, prepareEncounter, createEncounter } from "./encounters.js";
 import { TRAINER_ART } from "./trainer-art.js";
+import { speciesCompendiums } from "./generator.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -18,11 +19,12 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   batch = [];
   busy = false;
-  values = { mode: "pokemon", amount: 1, trainerMinLevel: 1, trainerMaxLevel: 5, partySize: 3, minLevel: 5, maxLevel: 10, shinyChance: 1, includeForms: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest", placeTokens: false };
+  values = { mode: "pokemon", amount: 1, trainerMinLevel: 1, trainerMaxLevel: 5, partySize: 3, trainerHasMega: false, minLevel: 5, maxLevel: 10, shinyChance: 0.01, includeForms: false, pack: "ptu.species", statStyle: "balanced", moveStyle: "latest", placeTokens: false };
   message = "Choose Pokémon, trainers, or trainers with their Pokémon, then preview.";
   listenerController;
 
   async _prepareContext() {
+    const packs = await speciesCompendiums();
     const pack = game.packs.get(this.values.pack);
     const index = pack ? await pack.getIndex({ fields: ["type", "system.types", "system.habitats"] }) : [];
     const species = [...index].filter(item => item.type === "species");
@@ -33,7 +35,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
       modes: [{ value: "pokemon", label: "Pokémon only" }, { value: "trainers", label: "Trainers only" }, { value: "party", label: "Trainers with their Pokémon" }].map(mode => ({ ...mode, selected: mode.value === this.values.mode })),
       trainerArt: TRAINER_ART.map(art => ({ ...art, selected: art.id === this.values.trainerArt })),
       hasPreview: this.batch.length > 0, batch: this.batch.map(entry => entry.summary),
-      packs: game.packs.filter(p => p.documentName === "Item").map(p => ({ id: p.collection, label: p.metadata.label, selected: p.collection === this.values.pack })),
+      packs: packs.map(p => ({ id: p.collection, label: p.metadata.label, selected: p.collection === this.values.pack })),
       folders: game.folders.filter(f => f.type === "Actor").map(f => ({ id: f.id, name: f.name, selected: f.id === this.values.folder })),
       types: choices(species.flatMap(s => s.system?.types ?? []), this.values.type),
       habitats: choices(species.flatMap(s => s.system?.habitats ?? []), this.values.habitat),
@@ -60,6 +62,7 @@ class RandomPokemonApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const values = Object.fromEntries(new FormData(form));
     values.includeForms = form.elements.includeForms?.checked ?? false;
     values.placeTokens = form.elements.placeTokens?.checked ?? false;
+    values.trainerHasMega = form.elements.trainerHasMega?.checked ?? false;
     return values;
   }
 

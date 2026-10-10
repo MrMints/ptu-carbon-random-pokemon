@@ -2,6 +2,14 @@ import { STAT_KEYS, integer, pick } from "./rules.js";
 import { MODULE_ID, checkSystem } from "./generator.js";
 import { TRAINER_ART, resolveTrainerPortrait } from "./trainer-art.js";
 
+// First names of ordinary game opponents, reused with the selected generic class.
+// Sources: https://bulbapedia.bulbagarden.net/wiki/Youngster_(Trainer_class)
+// and https://bulbapedia.bulbagarden.net/wiki/Lass_(Trainer_class)
+export const TRAINER_NAMES = Object.freeze({
+  Male: Object.freeze(["Joey", "Mikey", "Ben", "Calvin", "Tristan", "Parker"]),
+  Female: Object.freeze(["Janice", "Sally", "Robin", "Haley", "Suzette", "Tiana"])
+});
+
 export function validateTrainerOptions(input = {}) {
   const options = {
     ...input,
@@ -37,8 +45,10 @@ export async function prepareTrainer(input, { Builder } = {}) {
   builder.trainer.partySize = 0;
   builder.party = {};
   builder.trainer.sex = [{ value: art.sex, label: art.sex }];
+  builder.trainer.name = pick(TRAINER_NAMES[art.sex]);
   builder.manuallyUpdatedFields.add("trainer.level");
   builder.manuallyUpdatedFields.add("trainer.sex");
+  builder.manuallyUpdatedFields.add("trainer.name");
   await builder.randomizeAll();
   // The native randomizer samples with replacement. Keep a single acquisition
   // of each source and respect PTU's four-class limit before recalculating prerequisites.
@@ -71,13 +81,13 @@ export async function prepareTrainer(input, { Builder } = {}) {
     slug, value: { value: skill.value, mod: 0 }, modifier: { value: 0, mod: 0 }
   }]));
   const data = {
-    _id: foundry.utils.randomID(), name: `${art.label} ${trainer.name || "Trainer"}`, type: "character", img: portrait,
+    _id: foundry.utils.randomID(), name: `${art.label.replace(/ \((Female|Male)\)$/, "")} ${trainer.name}`, type: "character", img: portrait,
     folder: options.folder || null, items,
     system: { alliance: builder.alliance, sex: art.sex, level: { milestones: level - 1, miscexp: 0 }, skills,
       stats: Object.fromEntries(STAT_KEYS.map(key => [key, { levelUp: 0 }])), health: { value: 0 }, ap: { value: 0 } },
-    prototypeToken: { name: `${art.label} ${trainer.name || "Trainer"}`, actorLink: true, width: 1, height: 1,
+    prototypeToken: { name: `${art.label.replace(/ \((Female|Male)\)$/, "")} ${trainer.name}`, actorLink: true, width: 1, height: 1,
       texture: { src: portrait }, disposition: builder.alliance === "opposition" ? -1 : 0 },
-    flags: { [MODULE_ID]: { generated: true, version: "0.2.0", level, art: art.id, artSource: art.source } }
+    flags: { [MODULE_ID]: { generated: true, version: "0.2.1", level, art: art.id, artSource: art.source } }
   };
   // Carbon's actor preparation includes the world's advancement variant and item rules.
   const temporary = new CONFIG.Actor.documentClass(data);
