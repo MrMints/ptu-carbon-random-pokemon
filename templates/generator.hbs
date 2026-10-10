@@ -37,6 +37,8 @@
       <label>Habitat<select name="habitat"><option value="">Any habitat</option>{{#each habitats}}<option {{#if selected}}selected{{/if}} value="{{value}}">{{value}}</option>{{/each}}</select></label>
     </div>
     <label class="carbon-checkbox"><input type="checkbox" name="includeForms" {{#if values.includeForms}}checked{{/if}}> Include compendium forms</label>
+    <label class="carbon-checkbox"><input type="checkbox" name="includeLegendary" {{#if values.includeLegendary}}checked{{/if}}> Include Legendary and Mythical Pokémon</label>
+    <p class="carbon-hint">Legendary and Mythical species are excluded by default. Enabling them adds them to the eligible pool; it does not guarantee one. Level, species, form and Mega filters still apply.</p>
     <p class="carbon-hint">Only species items are used. Mega Pokémon are excluded unless the trainer's Mega option is checked. Species must meet their listed minimum level.</p>
   </fieldset>
   <fieldset {{#if busy}}disabled{{/if}}>
