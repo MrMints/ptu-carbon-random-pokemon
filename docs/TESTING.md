@@ -52,3 +52,11 @@ Use a Forge game configured for Foundry 13 and Carbon 4.4.3. Install this custom
 - In trainer-party mode, Mega Mewtwo requires both the Mega option and Legendary/Mythical checkbox.
 - Enabling rare species still respects the other filters and does not guarantee a rare roll in an unrestricted pool.
 
+
+## 0.2.3 trainer prerequisite checks
+- Generate trainers at levels 1, 2, 5, 6, 12, 25 and 50 using the installed feature and edge compendiums.
+- Features requiring unsupported Mystic Senses negation or an unresolved I'm a Doctor prerequisite must be skipped, with compatible features retained.
+- Check skill ranks, prerequisite feature dependencies, item choices and advancement budgets on the saved actor; reroll several previews.
+- Generation must report an actionable compendium error if no compatible feature is available, with no actor writes.
+- Automated checks cover exact reported errors and rollback. A separate development harness exercised the actual Carbon builder 140 times with controlled compendium documents. Live Forge QA remains with the user.
+
