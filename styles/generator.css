@@ -1,5 +1,7 @@
-.ptu-carbon-generator .window-content { padding: 18px; }
-.ptu-carbon-generator .carbon-content { display: flex; flex-direction: column; gap: 12px; }
+.ptu-carbon-generator { max-height: calc(100vh - 32px); }
+.ptu-carbon-generator .window-content { padding: 18px; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.ptu-carbon-generator .carbon-content { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; flex: 1; }
+.ptu-carbon-generator .carbon-content > * { flex-shrink: 0; }
 .ptu-carbon-generator .carbon-heading { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #ad4248; padding-bottom: 12px; }
 .ptu-carbon-generator .carbon-heading > i { font-size: 32px; color: #ad4248; }
 .ptu-carbon-generator h2, .ptu-carbon-generator h3 { margin: 0 0 4px; }
