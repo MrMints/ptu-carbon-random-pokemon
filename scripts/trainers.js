@@ -1,6 +1,7 @@
 import { STAT_KEYS, integer, pick } from "./rules.js";
 import { MODULE_ID, checkSystem } from "./generator.js";
 import { TRAINER_ART, resolveTrainerPortrait } from "./trainer-art.js";
+import { prepareTrainerBuild } from "./trainer-build.js";
 
 // First names of ordinary game opponents, reused with the selected generic class.
 // Sources: https://bulbapedia.bulbagarden.net/wiki/Youngster_(Trainer_class)
@@ -49,16 +50,7 @@ export async function prepareTrainer(input, { Builder } = {}) {
   builder.manuallyUpdatedFields.add("trainer.level");
   builder.manuallyUpdatedFields.add("trainer.sex");
   builder.manuallyUpdatedFields.add("trainer.name");
-  await builder.randomizeAll();
-  // The native randomizer samples with replacement. Keep a single acquisition
-  // of each source and respect PTU's four-class limit before recalculating prerequisites.
-  const unique = choices => choices.filter((choice, index) => choices.findIndex(other => other.uuid === choice.uuid) === index);
-  builder.trainer.classes.selected = unique(builder.trainer.classes.selected).slice(0, 4);
-  builder.trainer.features.selected = unique(builder.trainer.features.selected);
-  builder.trainer.edges.selected = unique(builder.trainer.edges.selected);
-  await builder.refresh();
-  const problems = [...(builder.warnings?.unmet ?? []), ...(builder.warnings?.unknown ?? [])];
-  if (problems.length) throw new Error(`Carbon could not validate this trainer's prerequisites: ${problems.join(" ")} Reroll the preview.`);
+  await prepareTrainerBuild(builder);
   const trainer = builder.trainer;
   const items = [];
   for (const item of [...trainer.features.computed, ...trainer.edges.computed]) {
@@ -87,7 +79,7 @@ export async function prepareTrainer(input, { Builder } = {}) {
       stats: Object.fromEntries(STAT_KEYS.map(key => [key, { levelUp: 0 }])), health: { value: 0 }, ap: { value: 0 } },
     prototypeToken: { name: `${art.label.replace(/ \((Female|Male)\)$/, "")} ${trainer.name}`, actorLink: true, width: 1, height: 1,
       texture: { src: portrait }, disposition: builder.alliance === "opposition" ? -1 : 0 },
-    flags: { [MODULE_ID]: { generated: true, version: "0.2.2", level, art: art.id, artSource: art.source } }
+    flags: { [MODULE_ID]: { generated: true, version: "0.2.3", level, art: art.id, artSource: art.source } }
   };
   // Carbon's actor preparation includes the world's advancement variant and item rules.
   const temporary = new CONFIG.Actor.documentClass(data);
