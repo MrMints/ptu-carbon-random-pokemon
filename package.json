@@ -1,6 +1,6 @@
 {
   "name": "ptu-carbon-random-pokemon",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "type": "module",
   "scripts": { "test": "node --test", "check": "node --check scripts/main.js && node --check scripts/generator.js && node --check scripts/rules.js && node --check scripts/trainer-build.js && node --check scripts/trainers.js && node --check scripts/trainer-art.js && node --check scripts/encounters.js" }
