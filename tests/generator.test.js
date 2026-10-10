@@ -88,6 +88,23 @@ test("missing and ambiguous slug matches still reject generation rather than dro
   assert.equal(created.length, 0);
 });
 
+test("separator fallback rejects collisions and different spellings, while exact slugs take precedence", async () => {
+  const species = setup();
+  species.system.moves.level = [{ slug: "bubblebeam", level: 1 }];
+  let moves = [
+    { type: "move", name: "Bubble Beam", slug: "bubble-beam", uuid: "first" },
+    { type: "move", name: "Bubble-Beam", slug: "bubble-beam-alt", uuid: "second" }
+  ];
+  game.packs.set("ptu.moves", { async getDocuments() { return moves; } });
+  await assert.rejects(prepareBatch(), /Missing move reference: bubblebeam/);
+  moves = [{ type: "move", name: "Bubble", slug: "bubble", uuid: "different" }];
+  await assert.rejects(prepareBatch(), /Missing move reference: bubblebeam/);
+  const exact = { type: "move", name: "Legacy Bubblebeam", slug: "bubblebeam", uuid: "exact" };
+  moves.push(exact, { type: "move", name: "Bubble Beam", slug: "bubble-beam", uuid: "fallback" });
+  resolved.set(exact.uuid, exact);
+  assert.equal((await prepareBatch())[0].summary.moves, "Legacy Bubblebeam");
+});
+
 test("GM and compatibility checks reject unsupported systems", async () => {
   setup(); game.user.isGM = false;
   await assert.rejects(prepareBatch(), /Only a GM/);
