@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.6
+
+- Resolve legacy references such as bubblebeam against Bubble Beam / bubble-beam when exact slug lookup fails. Require a unique match in the typed Carbon compendium; different spellings and ambiguous matches still fail.
+- Add trainer-party regression coverage for two trainers with three Pokemon each, verifying Bubble Beam is embedded and source species remain unchanged. Add collision and exact-match precedence checks.
+
 ## 0.2.5
 
 - Resolve missing or stale move, ability and capability UUIDs by exact slug in the corresponding Carbon system compendium before native creation. Update only the isolated generation data. Reject absent or ambiguous matches without dropping items.
