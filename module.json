@@ -1,8 +1,8 @@
 {
   "id": "ptu-carbon-random-pokemon",
   "title": "PTU Carbon Random Encounters",
-  "description": "Random trainers, Pokémon, and linked parties with portraits and tokens for PTU 1.05 using Pokémon Carbon. With thanks to Trog / animenerdfreddurst for a great Foundry VTT system.",
-  "version": "0.2.4",
+  "description": "Random trainers, PokÃ©mon, and linked parties with portraits and tokens for PTU 1.05 using PokÃ©mon Carbon. With thanks to Trog / animenerdfreddurst for a great Foundry VTT system.",
+  "version": "0.2.5",
   "authors": [{ "name": "MrMints", "url": "https://github.com/MrMints" }],
   "compatibility": { "minimum": "13.345", "verified": "13.350", "maximum": "13" },
   "relationships": { "systems": [{ "id": "ptu", "type": "system", "compatibility": { "minimum": "4.4.3", "maximum": "4.4.3" } }] },
@@ -10,6 +10,6 @@
   "styles": ["styles/generator.css"],
   "url": "https://github.com/MrMints/ptu-carbon-random-pokemon",
   "manifest": "https://raw.githubusercontent.com/MrMints/ptu-carbon-random-pokemon/main/module.json",
-  "download": "https://github.com/MrMints/ptu-carbon-random-pokemon/releases/download/v0.2.4/ptu-carbon-random-pokemon.zip",
+  "download": "https://github.com/MrMints/ptu-carbon-random-pokemon/releases/download/v0.2.5/ptu-carbon-random-pokemon.zip",
   "bugs": "https://github.com/MrMints/ptu-carbon-random-pokemon/issues"
 }
