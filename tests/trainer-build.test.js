@@ -11,6 +11,8 @@ function fixture() {
   const high = option("Master Feature", "high", { minimum: 6 });
   const chain = option("Linked Feature", "chain", { dependency: true });
   const edge = option("Ordinary Edge", "edge");
+  const sources = new Map([base, doctor, mystic, high, chain, edge].map(item => [item.uuid, { name: item.label, uuid: item.uuid, toObject: () => ({ name: item.label, system: { prerequisites: [], rules: item.rules ?? [] } }) }]));
+  globalThis.fromUuid = async uuid => sources.get(uuid) ?? null;
   const builder = {
     expectedFeatureNumber: 3, expectedEdgeNumber: 2, expectedClassNumber: 1, skillLimit: 3, maxSkillPoints: 7,
     trainer: { classes: { selected: [] }, features: { selected: [], computed: [] }, edges: { selected: [], computed: [] }, subSelectables: {},
@@ -35,6 +37,33 @@ function fixture() {
   };
   return builder;
 }
+
+test("missing item-backed choices and automatic dependencies are skipped before native refresh", async () => {
+  const builder = fixture();
+  builder.expectedClassNumber = 3;
+  builder.expectedFeatureNumber = 5;
+  const broken = { uuid: "broken", label: "Broken Choice" };
+  const indirect = { uuid: "indirect", label: "Broken Dependency" };
+  const originalResolve = fromUuid;
+  globalThis.fromUuid = async uuid => ["broken", "indirect"].includes(uuid) ? {
+    uuid, name: uuid, toObject: () => ({ name: uuid, system: { prerequisites: [], rules: uuid === "broken" ? [
+      { key: "ChoiceSet", choices: [{ value: "Compendium.ptu.feats.Item.Missing000000001" }] }
+    ] : [] } })
+  } : originalResolve(uuid);
+  builder.multiselects.classes.options.unshift(broken, indirect);
+  builder.allItemPrereqs = async (prerequisites, context) => ({ allNewFeatures: context.allComputed.some(item => item.uuid === "indirect") ? [
+    (await fromUuid("broken")).toObject()
+  ] : [] });
+  const refresh = builder.refresh;
+  builder.refresh = async function () {
+    assert.ok(!this.trainer.classes.selected.some(item => ["broken", "indirect"].includes(item.uuid)), "unsafe choices must never enter refresh");
+    await refresh.call(this);
+  };
+  const skipped = await prepareTrainerBuild(builder);
+  assert.ok(skipped.includes("Broken Choice"));
+  assert.ok(skipped.includes("Broken Dependency"));
+  assert.ok(builder.trainer.features.computed.length > 0);
+});
 
 test("exact reported prerequisite failures skip candidates while producing a valid trainer", async () => {
   const builder = fixture();
