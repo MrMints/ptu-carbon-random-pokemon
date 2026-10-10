@@ -18,7 +18,7 @@ export function validateTrainerOptions(input = {}) {
     amount: integer(input.amount ?? 1, "Amount", 1, 50),
     trainerMinLevel: integer(input.trainerMinLevel ?? 1, "Minimum trainer level", 1, 50),
     trainerMaxLevel: integer(input.trainerMaxLevel ?? 5, "Maximum trainer level", 1, 50),
-    partySize: integer(input.partySize ?? 3, "PokÃ©mon per trainer", 1, 6)
+    partySize: integer(input.partySize ?? 3, "Pokémon per trainer", 1, 6)
   };
   if (!["pokemon", "trainers", "party"].includes(options.mode)) throw new Error("Unknown generation mode.");
   if (options.trainerMinLevel > options.trainerMaxLevel) throw new Error("Minimum trainer level must not exceed maximum trainer level.");
@@ -96,5 +96,5 @@ export async function prepareTrainer(input, { Builder } = {}) {
     gender: art.sex, hp: complete.system.health.max, artSource: art.source,
     features: items.filter(i => i.type === "feat").map(i => i.name).join(", "),
     edges: items.filter(i => i.type === "edge").map(i => i.name).join(", "), warnings: warnings.join(" "),
-    stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${complete.system.stats[key].total}`).join(" Â· ") } };
+    stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${complete.system.stats[key].total}`).join(" · ") } };
 }
