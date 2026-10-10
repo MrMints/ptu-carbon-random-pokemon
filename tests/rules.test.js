@@ -79,7 +79,8 @@ test("species filters and minimum evolution level use Carbon's schema", () => {
   assert.ok(matchesSpecies(species, { search: "pikachu, 6", type: "fire", habitat: "mountain" }));
   assert.equal(matchesSpecies(species, { type: "Water" }), false);
   assert.equal(matchesSpecies({ ...species, system: { ...species.system, form: "mega-x" } }), false);
-  assert.ok(matchesSpecies({ ...species, system: { ...species.system, form: "mega-x" } }, { includeForms: true }));
+  assert.equal(matchesSpecies({ ...species, system: { ...species.system, form: "mega-x" } }, { includeForms: true }), false);
+  assert.ok(matchesSpecies({ ...species, system: { ...species.system, form: "mega-x" } }, { megaOnly: true }));
 });
 
 test("invalid inputs fail before actor creation", () => {

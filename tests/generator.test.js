@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { MODULE_ID, prepareBatch, createBatch } from "../scripts/generator.js";
+import { MODULE_ID, prepareBatch, createBatch, speciesCompendiums, validateOptions } from "../scripts/generator.js";
 import { STAT_KEYS, natureAdjusted, obeysBaseRelation } from "../scripts/rules.js";
 
 import { setup, created, resolved, base } from "./carbon-fixture.js";
@@ -28,6 +28,18 @@ test("zero percent shiny remains false", async () => {
   setup();
   const batch = await prepareBatch({ shinyChance: 0 });
   assert.equal(batch[0].summary.shiny, false);
+});
+
+test("pool choices only contain compendiums with species and shiny defaults to 0.01 percent", async () => {
+  setup();
+  const packs = [
+    { documentName: "Item", collection: "species", getIndex: async () => [{ type: "species" }] },
+    { documentName: "Item", collection: "moves", getIndex: async () => [{ type: "move" }] },
+    { documentName: "Actor", collection: "actors" }
+  ];
+  game.packs = packs;
+  assert.deepEqual((await speciesCompendiums()).map(pack => pack.collection), ["species"]);
+  assert.equal(validateOptions().shinyChance, 0.01);
 });
 
 test("missing references fail without silently omitting moves or creating actors", async () => {

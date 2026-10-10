@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { setup, created } from "./carbon-fixture.js";
-import { prepareTrainer, validateTrainerOptions } from "../scripts/trainers.js";
+import { prepareTrainer, validateTrainerOptions, TRAINER_NAMES } from "../scripts/trainers.js";
 import { prepareEncounter, createEncounter } from "../scripts/encounters.js";
 import { TRAINER_ART, resolveTrainerPortrait } from "../scripts/trainer-art.js";
 import { STAT_KEYS } from "../scripts/rules.js";
@@ -18,7 +18,7 @@ class Builder {
     assert.ok(this.manuallyUpdatedFields.has("trainer.level"));
     assert.ok(this.manuallyUpdatedFields.has("trainer.sex"));
     assert.equal(this.trainer.partySize, 0);
-    this.trainer.name = "Alex";
+    assert.ok(this.manuallyUpdatedFields.has("trainer.name"));
   }
 }
 
@@ -26,7 +26,7 @@ function environment() {
   setup();
   let id = 0;
   foundry.utils.randomID = () => `random${String(++id).padStart(10, "0")}`;
-  globalThis.Folder = { async create(data) { return { ...data, id: foundry.utils.randomID() }; } };
+  globalThis.Folder = { async create(data) { const folder = { ...data, id: foundry.utils.randomID() }; game.folders.set(folder.id, folder); return folder; } };
   const PokemonActor = CONFIG.Actor.documentClass;
   CONFIG.Actor.documentClass = class extends PokemonActor {
     prepareData() {
@@ -52,6 +52,8 @@ test("trainer levels, full health/AP, Carbon stat budget, generic portrait and m
     assert.equal(result.data.system.ap.value, 5 + Math.floor(level / 5));
     assert.equal(result.data.img, result.data.prototypeToken.texture.src);
     assert.equal(result.data.prototypeToken.actorLink, true);
+    assert.ok(TRAINER_NAMES.Female.some(name => result.data.name === `Ace Trainer ${name}`));
+    assert.equal(result.data.prototypeToken.name, result.data.name);
   }
 });
 
@@ -71,6 +73,10 @@ test("all three modes produce the requested counts and parties link each Pokémo
       }
     }
     await createEncounter(batch);
+    const root = [...game.folders.values()].find(folder => folder.name === "Random Encounter Gen");
+    assert.ok(root);
+    if (mode === "pokemon") assert.ok(created.every(actor => actor.folder === root.id));
+    else for (const actor of created.filter(actor => actor.type === "character")) assert.equal(game.folders.get(actor.folder).folder, root.id);
     assert.deepEqual(created.map(actor => ({ ...actor, folder: null })), batch.map(entry => ({ ...entry.data, folder: null })));
     if (mode === "party") {
       assert.ok(created[0].folder);
@@ -86,6 +92,37 @@ test("invalid trainer levels, party sizes, modes and non-curated artwork fail", 
   for (const input of [{ trainerMinLevel: 0 }, { trainerMaxLevel: 51 }, { trainerMinLevel: 10, trainerMaxLevel: 5 }, { partySize: 7 }, { mode: "other" }, { trainerArt: "Ash" }]) {
     assert.throws(() => validateTrainerOptions(input));
   }
+});
+
+test("Mega checkbox includes exactly one Mega per trainer and ordinary rolls never include Megas", async () => {
+  environment();
+  const normal = (await game.packs.get("ptu.species").getDocuments())[0];
+  const mega = { ...normal, name: "Charmander-Mega", slug: "charmander-mega", uuid: "mega-source", system: { ...normal.system, form: "mega" } };
+  game.packs.get("ptu.species").getDocuments = async () => [mega, normal, { type: "move", name: "Mega Punch" }];
+  for (const trainerHasMega of [false, true]) {
+    for (const partySize of [1, 3, 6]) {
+      const batch = await prepareEncounter({ mode: "party", amount: 2, partySize, trainerHasMega, includeForms: true, minLevel: 5, maxLevel: 5 }, { Builder });
+      assert.equal(batch.length, 2 * (partySize + 1));
+      for (const trainer of batch.filter(entry => entry.data.type === "character")) {
+        const party = batch.filter(entry => entry.data.flags?.ptu?.party?.trainer === trainer.data._id);
+        assert.equal(party.filter(entry => entry.data.name.includes("Mega")).length, trainerHasMega ? 1 : 0);
+      }
+    }
+  }
+  const wild = await prepareEncounter({ mode: "pokemon", amount: 20, includeForms: true, trainerHasMega: true });
+  assert.ok(wild.every(entry => !entry.data.name.includes("Mega")));
+  game.packs.get("ptu.species").getDocuments = async () => [normal];
+  await assert.rejects(prepareEncounter({ mode: "party", trainerHasMega: true }, { Builder }), /No Mega species/);
+  assert.equal(created.length, 0);
+});
+
+test("creation reuses the Random Encounter Gen root folder", async () => {
+  environment();
+  const batch = await prepareEncounter({ mode: "pokemon" });
+  await createEncounter(batch);
+  await createEncounter(batch);
+  assert.equal([...game.folders.values()].filter(folder => folder.name === "Random Encounter Gen").length, 1);
+  assert.equal(created[0].folder, created[1].folder);
 });
 
 test("curated generic game artwork files are real PNGs with matching source attribution", () => {
