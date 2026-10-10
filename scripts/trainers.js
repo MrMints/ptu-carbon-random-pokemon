@@ -18,7 +18,7 @@ export function validateTrainerOptions(input = {}) {
     amount: integer(input.amount ?? 1, "Amount", 1, 50),
     trainerMinLevel: integer(input.trainerMinLevel ?? 1, "Minimum trainer level", 1, 50),
     trainerMaxLevel: integer(input.trainerMaxLevel ?? 5, "Maximum trainer level", 1, 50),
-    partySize: integer(input.partySize ?? 3, "Pokémon per trainer", 1, 6)
+    partySize: integer(input.partySize ?? 3, "PokÃ©mon per trainer", 1, 6)
   };
   if (!["pokemon", "trainers", "party"].includes(options.mode)) throw new Error("Unknown generation mode.");
   if (options.trainerMinLevel > options.trainerMaxLevel) throw new Error("Minimum trainer level must not exceed maximum trainer level.");
@@ -79,7 +79,7 @@ export async function prepareTrainer(input, { Builder } = {}) {
       stats: Object.fromEntries(STAT_KEYS.map(key => [key, { levelUp: 0 }])), health: { value: 0 }, ap: { value: 0 } },
     prototypeToken: { name: `${art.label.replace(/ \((Female|Male)\)$/, "")} ${trainer.name}`, actorLink: true, width: 1, height: 1,
       texture: { src: portrait }, disposition: builder.alliance === "opposition" ? -1 : 0 },
-    flags: { [MODULE_ID]: { generated: true, version: "0.2.4", level, art: art.id, artSource: art.source } }
+    flags: { [MODULE_ID]: { generated: true, version: "0.2.5", level, art: art.id, artSource: art.source } }
   };
   // Carbon's actor preparation includes the world's advancement variant and item rules.
   const temporary = new CONFIG.Actor.documentClass(data);
@@ -96,5 +96,5 @@ export async function prepareTrainer(input, { Builder } = {}) {
     gender: art.sex, hp: complete.system.health.max, artSource: art.source,
     features: items.filter(i => i.type === "feat").map(i => i.name).join(", "),
     edges: items.filter(i => i.type === "edge").map(i => i.name).join(", "), warnings: warnings.join(" "),
-    stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${complete.system.stats[key].total}`).join(" · ") } };
+    stats: STAT_KEYS.map(key => `${key.toUpperCase()}: ${complete.system.stats[key].total}`).join(" Â· ") } };
 }
