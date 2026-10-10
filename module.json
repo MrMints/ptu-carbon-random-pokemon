@@ -1,7 +1,7 @@
 {
   "id": "ptu-carbon-random-pokemon",
   "title": "PTU Carbon Random Encounters",
-  "description": "Random trainers, PokÃ©mon, and linked parties with portraits and tokens for PTU 1.05 using PokÃ©mon Carbon. With thanks to Trog / animenerdfreddurst for a great Foundry VTT system.",
+  "description": "Random trainers, Pokémon, and linked parties with portraits and tokens for PTU 1.05 using Pokémon Carbon. With thanks to Trog / animenerdfreddurst for a great Foundry VTT system.",
   "version": "0.2.5",
   "authors": [{ "name": "MrMints", "url": "https://github.com/MrMints" }],
   "compatibility": { "minimum": "13.345", "verified": "13.350", "maximum": "13" },
